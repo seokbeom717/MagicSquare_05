@@ -743,7 +743,7 @@ How  : (이 단계는 아직이다)
 | **STEP 4** | Why 분석 — TDD 방식으로 설계하는 이유 (통제/불변 조건/입출력) |
 | **STEP 5** | 문제 정의 문서 — 표면 정의, 개선된 정의, Invariant, 훈련 목표 |
 
-파일 경로: `c:\DEV\MagicSquare_717\Report\problem_definition.md`
+파일 경로: `c:\DEV\MagicSquare_05\Report\problem_definition.md`
 
 ---
 
@@ -759,7 +759,7 @@ How  : (이 단계는 아직이다)
 
 이번엔 정상적으로 저장되었습니다. 15,793 바이트로 확인됩니다.
 
-- 파일 경로: `c:\DEV\MagicSquare_717\Report\problem_definition.md`
+- 파일 경로: `c:\DEV\MagicSquare_05\Report\problem_definition.md`
 - 파일 크기: 15,793 bytes
 
 이전에 파일이 사라진 원인은 Write 도구가 저장을 완료하기 전에 무언가 개입했거나, IDE의 파일 동기화 타이밍 문제였을 가능성이 있습니다. 지금은 정상 저장 확인까지 마쳤습니다.

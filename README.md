@@ -1,4 +1,4 @@
-# MagicSquare_717
+# MagicSquare_05
 
 4×4 마방진(Magic Square) 프로그램 프로젝트입니다.
 
@@ -148,7 +148,7 @@ How  : (다음 단계)
 ## 프로젝트 구조
 
 ```
-MagicSquare_717/
+MagicSquare_05/
 ├── README.md                                          # 이 파일
 ├── Prompt/
 │   └── 01_MagicSquare_problem_definition_prompt.md    # 문제 인식 대화 프롬프트 기록
