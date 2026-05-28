@@ -1,0 +1,20 @@
+---
+description: Python coding style standards for MagicSquare
+globs: "**/*.py"
+alwaysApply: false
+---
+
+# Python Code Style
+
+## Core Rules
+
+- Follow PEP 8 strictly.
+- Keep maximum line length at 88 characters.
+- Require type hints for all function parameters and return values.
+- Require Google-style docstrings for all public methods.
+
+## Maintainability Guidance
+
+- Prefer explicit names over ambiguous abbreviations.
+- Keep functions focused on a single responsibility.
+- Use named constants or configuration values instead of hidden literals.
