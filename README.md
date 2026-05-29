@@ -19,6 +19,8 @@
 | 본질적으로 다른 해 | 880가지 |
 | 탐색 공간 | 16! ≈ 2×10¹³ |
 
+**QA·커버리지 SSOT:** [`docs/qa_ssot_mapping.md`](docs/qa_ssot_mapping.md) — ECB 경로, GM 파일명, pytest 건수, Dual-Track cov 명령.
+
 겉으로는 “숫자를 채운다”는 문제처럼 보이지만, 실제로는 **방대한 탐색 공간에서 다중 제약 조건을 동시에 만족하는 상태를 찾고 표현하는 문제**입니다.
 
 ---
@@ -194,15 +196,15 @@ MagicSquare_05/
 - [x] TC-A-07: 반환 객체 타입이 지정 실패 결과 구조체인지 검증
 
 ### Track B — Domain / Logic 테스트
-- [ ] TC-B-01: resolve()가 None grid를 직접 받지 않음을 격리 검증
-- [ ] TC-B-02: Boundary가 None 분기를 처리 후 resolve() 미호출 확인
-- [ ] TC-B-03: resolve() mock이 호출됐을 경우 테스트 실패 처리
-- [ ] TC-B-04: AC-FR-01-02~05 범위의 케이스는 이 커밋에 포함하지 않음 확인
+- [x] TC-B-01: resolve()가 None grid를 직접 받지 않음을 격리 검증
+- [x] TC-B-02: Boundary가 None 분기를 처리 후 resolve() 미호출 확인
+- [x] TC-B-03: resolve() mock이 호출됐을 경우 테스트 실패 처리
+- [x] TC-B-04: AC-FR-01-02~05 범위의 케이스는 이 커밋에 포함하지 않음 확인
 
 ### 커버리지 목표
-- [ ] Domain Logic: 95%+ (pip install pytest-cov)
-- [ ] Boundary Layer: 85%+
-- [ ] 전체 TOTAL: 90%+
+- [ ] Domain Logic: 95%+ (`tests/entity/` + `tests/control/`, 현재 ~90%)
+- [ ] Boundary Layer: 85%+ (핵심 모듈 ~97%; `gui/` 포함 패키지 전체 ~35%)
+- [ ] 전체 TOTAL: 80%+ (`.cursor/rules`, 현재 ~50% — GUI 미테스트)
 
 ### 결함 목록 연결
 - [x] defect_list.md 생성 및 발견 결함 기록
@@ -222,11 +224,13 @@ MagicSquare_05/
 
 ### 테스트 코드
 
-- [x] GM-04: `test_golden_master_magic_square` 작성
+- [x] GM-04: `test_golden_master_magic_square.py` 작성
 - [x] GM-05: approve 패턴 적용
 - [x] GM-06: Golden Master 테스트 PASS 확인
 
-**검증:** `python -m pytest -m golden_master -v`
+> **파일명 별칭:** 구 프롬프트 `test_gm_01_magic_square_golden_master.py` → **`tests/test_golden_master_magic_square.py`** (SSOT). GM-01은 baseline **파일** `tests/golden_master_expected.txt`.
+
+**검증:** `python -m pytest -m golden_master -v` (또는 `pytest tests/test_golden_master_magic_square.py -q`)
 
 ### 회귀 보호
 
@@ -389,9 +393,9 @@ AC-FR-01-01 SUT 범위 제한 테스트 — RED 커밋 시 이미 GREEN 유지.
 
 ### GREEN 완료 기준 (Boundary Track)
 
-- [x] `python -m pytest tests/boundary/ -q` — 28건 전부 통과
+- [x] `python -m pytest tests/boundary/ -q` — **38건** 전부 통과
 - [x] `python -m pytest tests/control/test_solve_orchestration_dimension.py tests/control/test_u_flow_execute_isolation.py -q` — orchestration 10건 통과
-- [ ] Boundary Layer 커버리지 85%+ (`python -m pytest tests/boundary/ --cov=src/boundary --cov-report=term-missing`)
+- [ ] Boundary Layer 커버리지 85%+ — 핵심 모듈 ✅ / `gui/` 포함 패키지 전체 미달 ([`qa_ssot_mapping.md`](docs/qa_ssot_mapping.md) §8)
 
 ### RED ↔ GREEN 매핑 요약
 
@@ -402,7 +406,7 @@ AC-FR-01-01 SUT 범위 제한 테스트 — RED 커밋 시 이미 GREEN 유지.
 | R3 | GREEN-2 | U-IN-03a/b | ✅ 2/2 |
 | R4 | GREEN-3, GREEN-4 | U-IN-04, U-IN-05 | ✅ 3/3 |
 | R5 | GREEN-5, GREEN-6 | U-OUT, U-FLOW | ✅ 7/7 |
-| R6 | (Domain Track) | D-LOC~D-SOL | ⏳ 별 트랙 |
+| R6 | (Domain Track) | D-LOC~D-SOL | ✅ 12/12 + user 6건 |
 
 ---
 
@@ -425,11 +429,15 @@ AC-FR-01-01 SUT 범위 제한 테스트 — RED 커밋 시 이미 GREEN 유지.
 
 ### ECB 실제 파일 매핑 (프롬프트 ↔ 저장소)
 
-| 프롬프트 (목표) | 현재 `src/` 파일 | 비고 |
-|-----------------|------------------|------|
-| `control/solve_partial_magic_square.py` | `entity/two_cell_solver.py`, `entity/solve_partial_magic_square.py`, `control/magic_square_control.py` | `solution()` SSOT in entity |
-| `boundary/ui_boundary.py` | `boundary/ui_boundary.py`, `boundary/puzzle_gateway.py` | E006 unsolvable envelope |
-| `boundary/screen/main_window.py` | `boundary/gui/main_window.py`, `boundary/gui/grid_panel.py` | `gui/` rename deferred (change budget) |
+상세: [`docs/qa_ssot_mapping.md`](docs/qa_ssot_mapping.md) §1.
+
+| 프롬프트 (목표/관례) | 현재 `src/` 파일 | 레이어 | 비고 |
+|---------------------|------------------|--------|------|
+| `domain.py` / Control orchestration | `control/magic_square_control.py` | Control | `resolve()` only |
+| Domain solver SSOT | `entity/two_cell_solver.py` | Entity | `solution()` |
+| Domain execute | `entity/solve_partial_magic_square.py` | Entity | `execute()` → `solution()` |
+| `boundary.py` | `boundary_validator.py`, `puzzle_gateway.py`, `ui_boundary.py`, `failure_result.py`, `input_validator.py` | Boundary | `schemas.py` 미사용 |
+| `boundary/screen/main_window.py` | `boundary/gui/main_window.py`, `grid_panel.py` | Screen | `gui/` rename deferred |
 
 ---
 

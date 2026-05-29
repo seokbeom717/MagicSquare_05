@@ -1,9 +1,14 @@
-"""GM-2 — Golden Master approval tests for Magic Square Solver.
+"""GM-04 — Golden Master approval tests for Magic Square Solver.
 
-[TAG][GoldenMaster] GM-TC-01 .. GM-TC-05
+Legacy prompt alias: test_gm_01_magic_square_golden_master.py (does not exist).
+SSOT path: tests/test_golden_master_magic_square.py
+Baseline file (GM-01): tests/golden_master_expected.txt
+
+[TAG][GoldenMaster] GM-TC-00 .. GM-TC-05
 
 Run:
     pytest -m golden_master -v
+    pytest tests/test_golden_master_magic_square.py -q
 """
 
 from __future__ import annotations
