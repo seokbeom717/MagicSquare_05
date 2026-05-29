@@ -210,6 +210,35 @@ MagicSquare_05/
 
 ---
 
+## Golden Master 회귀 안전장치
+
+> Refactoring 시작 전 구축. GREEN 완료 후 즉시 적용.
+
+### 기준 파일 생성
+
+- [x] GM-01: `golden_master_expected.txt` 생성
+- [x] GM-02: 정상/역순/오류 시나리오 추가
+- [x] GM-03: `git add tests/golden_master_expected.txt`
+
+### 테스트 코드
+
+- [x] GM-04: `test_golden_master_magic_square` 작성
+- [x] GM-05: approve 패턴 적용
+- [x] GM-06: Golden Master 테스트 PASS 확인
+
+**검증:** `python -m pytest -m golden_master -v`
+
+### 회귀 보호
+
+- [x] GM-07: row-major 규칙 보호
+- [x] GM-08: 1-index 출력 보호
+- [x] GM-09: reverse 조합 fallback 보호
+- [x] GM-10: Error Contract 보호
+
+**관련 파일:** `tests/golden_master_expected.txt`, `tests/test_golden_master_magic_square.py`, `tests/golden_master/`, `scripts/generate_golden_master.py`, `docs/golden_master_approval_design.md`
+
+---
+
 ## GREEN 단계 To-Do 리스트
 
 > RED 커밋 묶음(R1~R6)에 대응하는 GREEN(최소 구현) 체크리스트입니다.  
