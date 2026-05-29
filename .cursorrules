@@ -1,0 +1,14 @@
+# MagicSquare Rule Entry
+
+This project migrated detailed agent rules into `.cursor/rules/*.mdc`.
+
+Primary rule files:
+
+- `magicsquare-project.mdc`
+- `magicsquare-python-code-style.mdc`
+- `magicsquare-ecb-architecture.mdc`
+- `magicsquare-tdd-testing.mdc`
+- `magicsquare-forbidden.mdc`
+- `workflow-automation.mdc` (kept as-is by request)
+
+Use the `.cursor/rules` files as the source of truth for behavior and standards.

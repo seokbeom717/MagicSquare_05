@@ -1,0 +1,41 @@
+---
+description: MagicSquare project baseline, structure, and agent workflow
+alwaysApply: true
+---
+
+# MagicSquare Project Baseline
+
+## Project Context
+
+- Project name: MagicSquare
+- Primary language: Python 3.10+
+- Development method: Dual-Track TDD with ECB architecture
+
+## Expected Structure
+
+- Source root: `src/`
+- Test root: `tests/`
+- ECB directories under `src/`: `boundary/`, `control/`, `entity/`
+
+## Agent Workflow
+
+### Before Coding
+
+- Check related existing tests before generating or modifying code.
+- Identify the target ECB layer and confirm allowed dependency direction.
+
+### During Coding
+
+- Keep type hints for all function parameters and return values.
+- Do not violate ECB layer boundaries.
+- Follow RED -> GREEN -> REFACTOR without skipping phases.
+
+### After Coding
+
+- Run relevant pytest scope.
+- Confirm tests were not weakened to force pass.
+- Verify coverage remains at or above 80%.
+
+## Violation Policy
+
+- If TDD rules are violated, emit an explicit warning and correct the flow.

@@ -1,0 +1,22 @@
+---
+description: Forbidden patterns and safer alternatives
+globs: "**/*.py"
+alwaysApply: false
+---
+
+# Forbidden Patterns
+
+## Prohibited
+
+- `print()` for ad-hoc debugging
+  - Use structured logging with suitable log levels or debugger tooling.
+- Bare `except`
+  - Catch specific exception types and re-raise with context.
+- Implementation before RED
+  - Start with a failing test, then implement the minimum fix.
+- Weakening or deleting tests to force pass
+  - Fix production logic or redesign tests without losing test intent.
+
+## Enforcement
+
+- If a forbidden pattern is introduced, block completion until corrected.

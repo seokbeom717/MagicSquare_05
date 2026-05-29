@@ -1,0 +1,37 @@
+---
+description: TDD cycle and pytest testing standards
+globs: "**/*.py"
+alwaysApply: false
+---
+
+# TDD and Testing
+
+## RED
+
+- Write or update tests before production code changes.
+- Execute tests and confirm explicit RED status.
+- Verify failure is due to missing or incomplete implementation.
+- Must not change production code before RED is observed.
+
+## GREEN
+
+- Implement the smallest change needed to pass failing tests.
+- Re-run relevant test scope until stable GREEN.
+- Preserve behavior outside the target scenario.
+- Must not refactor or add speculative features in GREEN.
+
+## REFACTOR
+
+- Refactor only after GREEN.
+- Keep public contracts and observable behavior unchanged.
+- Maintain or improve test coverage while refactoring.
+- Must not merge if any test fails.
+
+## pytest Conventions
+
+- Use `pytest` and structure tests with AAA (Arrange-Act-Assert).
+- Keep coverage at 80% or higher.
+- Use `test_` prefix for test function names.
+- Default fixture scope is `function`.
+- Use broader fixture scopes only for immutable shared resources.
+- Avoid shared mutable state across tests.
