@@ -406,6 +406,121 @@ AC-FR-01-01 SUT 범위 제한 테스트 — RED 커밋 시 이미 GREEN 유지.
 
 ---
 
+## REFACTOR 단계 To-Do 리스트
+
+> Track A GREEN·Golden Master 구축 완료 후 진행.  
+> **원칙:** `.cursor/rules/magicsquare-tdd-testing.mdc` — GREEN 통과 → 구조 변경 → 전체 회귀 PASS → 커버리지 유지.  
+> **ECB 허용 의존:** `boundary → control`, `control → entity` / **금지:** `control → boundary`, `entity → boundary|control`, Screen→Control 직접 호출.
+
+### ECB 실제 파일 매핑 (프롬프트 ↔ 저장소)
+
+| 프롬프트 (목표) | 현재 `src/` 파일 | 비고 |
+|-----------------|------------------|------|
+| `control/solve_partial_magic_square.py` | `entity/solve_partial_magic_square.py`, `control/two_cell_solver.py`, `control/magic_square_control.py` | 솔버·오케스트레이션 분산 |
+| `boundary/ui_boundary.py` | **없음** — `boundary/boundary_validator.py` (입력 검증만) | E006/E007·직렬화 레이어 미구현 |
+| `boundary/screen/main_window.py` | `boundary/gui/main_window.py`, `boundary/gui/grid_panel.py` | `screen/` 디렉터리 없음 |
+
+상세 분석: [Report/15_MagicSquare_refactoring_plan_report.md](Report/15_MagicSquare_refactoring_plan_report.md)
+
+---
+
+### P0 — REFACTOR 선행 (Track B GREEN + 계약 고정)
+
+> 구조 변경 **전** 반드시 GREEN. `pytest.ini`의 `--continue-on-collection-errors`로 entity import 오류가 조용히 스킵될 수 있음 — 전체 스위트 실행 권장.
+
+#### P0-0 — Entity Track B 테스트 GREEN
+
+- [ ] `test_d_loc_blank_coords.py` — import `blank_locator.find_blank_coords` 수정 + GREEN
+- [ ] `test_d_mis_missing_numbers.py` — import `find_missing_numbers` 수정 + GREEN
+- [ ] `test_d_val_magic_square.py` — `is_magic_square` 6건 GREEN (구현은 존재)
+- [ ] `test_d_sol_solution.py` — D-SOL-01~04 GREEN (Step A/B, unsolvable, int[6])
+- [ ] Golden Master GM-TC-02/05 baseline 재승인 (Track B GREEN 후)
+
+**검증:**
+
+```powershell
+python -m pytest tests/entity/test_d_loc_blank_coords.py tests/entity/test_d_mis_missing_numbers.py tests/entity/test_d_val_magic_square.py tests/entity/test_d_sol_solution.py -q
+python -m pytest -m golden_master -v
+```
+
+#### P0-1 — ECB: Control에서 Boundary 검증 분리
+
+- [ ] `MagicSquareControl.solve()`에서 `BoundaryValidator` 제거 — invalid 시 `resolve`/`execute` 0회 유지
+- [ ] Boundary 진입(`ui_boundary` 또는 CLI/GUI 진입)에서 E001~E005 검증 후 valid grid만 Control에 전달
+
+**대상:** `src/control/magic_square_control.py`  
+**검증:** `python -m pytest tests/control/test_u_flow_execute_isolation.py tests/control/test_solve_orchestration_dimension.py tests/boundary/ -q`
+
+#### P0-2 — 솔버 단일 SSOT + FR-05 완성
+
+- [ ] Entity: `blank_locator`, `missing_number_finder`, `is_magic_square`, 순수 assignment
+- [ ] Control: Step A/B 오케스트레이션 — `two_cell_solver.solution` 단일 진입점
+- [ ] `SolvePartialMagicSquare.execute`와 `magic_square_control.resolve` 중복 제거
+- [ ] unsolvable → `UnsolvableDomainError` / `ERR_NO_VALID_COMBINATION`
+
+**대상:** `entity/solve_partial_magic_square.py`, `control/two_cell_solver.py`
+
+#### P0-3 — Boundary 타입 안전 (E001~E005 envelope)
+
+- [ ] non-int·non-list·jagged row 입력 시 `FailureResult` 반환 (TypeError 금지)
+- [ ] 신규 테스트: `tests/boundary/test_boundary_validator_type_safety.py` (또는 dimension 확장)
+
+**대상:** `src/boundary/boundary_validator.py`
+
+---
+
+### P1 — ECB 구조 분리 (P0 GREEN 후)
+
+#### P1-1 — `ui_boundary` 신규
+
+- [ ] Screen↔Control 중재, Error/int[6] envelope 직렬화, E006/E007 매핑
+- [ ] 신규 테스트: `tests/boundary/test_ui_boundary.py`
+
+#### P1-2 — Screen 책임 축소
+
+- [ ] `main_window` — Control 직접 호출 제거 → `ui_boundary`만 호출
+- [ ] `_SAMPLE_G1_GRID` fixture → `tests/` 또는 `boundary/demo_data.py`
+- [ ] `grid_panel.apply_solution` — 좌표 변환/적용 분리
+- [ ] 신규 테스트: `tests/boundary/gui/test_grid_panel.py`
+
+**대상:** `boundary/gui/main_window.py`, `boundary/gui/grid_panel.py`
+
+#### P1-3 — Boundary 정리
+
+- [ ] `input_validator.py` 스텁 제거 또는 `BoundaryValidator` thin wrapper로 통합
+- [ ] `FailureResult` vs `FailureResponse` envelope 단일화
+
+---
+
+### P2 — SSOT·명명 (회귀 PASS 후)
+
+- [ ] `entity/constants.py` SSOT — boundary/GUI의 4/16/2/34 중복 제거
+- [ ] `gui/` → `screen/`, `entity/solve_partial` → `control/solve_partial` rename (관찰 계약 불변)
+
+---
+
+### REFACTOR 완료 기준
+
+- [ ] `python -m pytest tests/ -v` — 전체 PASS (수집 오류 0건 목표)
+- [ ] `python -m pytest -m golden_master -v` — GM-TC-00~05 PASS
+- [ ] `python -m pytest tests/ --cov=src --cov-report=term-missing` — 전체 80%+, boundary 85%+
+- [ ] import 검사 — `control`에서 `boundary` import 없음; `main_window`에서 `control`/`entity` 직접 import 없음 (P1 완료 후)
+- [ ] GUI smoke — `python main.py` 샘플/해결/invalid/랜덤/초기화 수동 확인
+
+### REFACTOR 회귀 검증 명령어 (요약)
+
+```powershell
+cd c:\DEV\MagicSquare_05
+python -m pytest tests/boundary/ -q
+python -m pytest tests/control/test_u_flow_execute_isolation.py tests/control/test_solve_orchestration_dimension.py -q
+python -m pytest tests/entity/ -q
+python -m pytest -m golden_master -v
+python -m pytest tests/ -v
+python -m pytest tests/ --cov=src --cov-report=term-missing
+```
+
+---
+
 ## 참고
 
 - 4×4 마방진의 본질적으로 다른 해: **880가지**
