@@ -185,13 +185,13 @@ MagicSquare_05/
 > 각 항목은 RED(실패 테스트 작성) 완료 시 체크합니다.
 
 ### Track A — UI / Boundary 테스트
-- [ ] TC-A-01: grid=None 입력 → 실패 결과 반환 (Happy Path of Failure)
-- [ ] TC-A-02: code가 정확히 "INVALID_SIZE" 문자열인지 검증
-- [ ] TC-A-03: message가 "Grid must be 4x4." 와 문자 단위 동일한지 검증
-- [ ] TC-A-04: grid=None 시 Domain 진입점 0회 호출 (mock/spy 검증)
-- [ ] TC-A-05: grid=[] 빈 리스트 → 실패 결과 반환
-- [ ] TC-A-06: grid=3×4 크기 불일치 → 실패 결과 반환
-- [ ] TC-A-07: 반환 객체 타입이 지정 실패 결과 구조체인지 검증
+- [x] TC-A-01: grid=None 입력 → 실패 결과 반환 (Happy Path of Failure)
+- [x] TC-A-02: code가 정확히 "INVALID_SIZE" 문자열인지 검증
+- [x] TC-A-03: message가 "Grid must be 4x4." 와 문자 단위 동일한지 검증
+- [x] TC-A-04: grid=None 시 Domain 진입점 0회 호출 (mock/spy 검증)
+- [x] TC-A-05: grid=[] 빈 리스트 → 실패 결과 반환
+- [x] TC-A-06: grid=3×4 크기 불일치 → 실패 결과 반환
+- [x] TC-A-07: 반환 객체 타입이 지정 실패 결과 구조체인지 검증
 
 ### Track B — Domain / Logic 테스트
 - [ ] TC-B-01: resolve()가 None grid를 직접 받지 않음을 격리 검증
@@ -207,6 +207,202 @@ MagicSquare_05/
 ### 결함 목록 연결
 - [x] defect_list.md 생성 및 발견 결함 기록
 - [ ] 모든 결함 수정 후 회귀 테스트 통과 확인
+
+---
+
+## Golden Master 회귀 안전장치
+
+> Refactoring 시작 전 구축. GREEN 완료 후 즉시 적용.
+
+### 기준 파일 생성
+
+- [x] GM-01: `golden_master_expected.txt` 생성
+- [x] GM-02: 정상/역순/오류 시나리오 추가
+- [x] GM-03: `git add tests/golden_master_expected.txt`
+
+### 테스트 코드
+
+- [x] GM-04: `test_golden_master_magic_square` 작성
+- [x] GM-05: approve 패턴 적용
+- [x] GM-06: Golden Master 테스트 PASS 확인
+
+**검증:** `python -m pytest -m golden_master -v`
+
+### 회귀 보호
+
+- [x] GM-07: row-major 규칙 보호
+- [x] GM-08: 1-index 출력 보호
+- [x] GM-09: reverse 조합 fallback 보호
+- [x] GM-10: Error Contract 보호
+
+**관련 파일:** `tests/golden_master_expected.txt`, `tests/test_golden_master_magic_square.py`, `tests/golden_master/`, `scripts/generate_golden_master.py`, `docs/golden_master_approval_design.md`
+
+---
+
+## GREEN 단계 To-Do 리스트
+
+> RED 커밋 묶음(R1~R6)에 대응하는 GREEN(최소 구현) 체크리스트입니다.  
+> 각 묶음을 GREEN 처리한 뒤 해당 범위 pytest를 실행하고, 통과 시 체크합니다.  
+> 정렬 기준: Report/09 검증 파이프라인 순서 — 차원 → blank → range → duplicate → 출력 → 오케스트레이션.
+
+### GREEN-0 — U-IN-01 (`grid=None`) · 대응 RED: **R2** (AC-FR-01-01 차원, 1/2)
+
+`BoundaryValidator.validate` — `None` 입력 시 `FailureResult(INVALID_SIZE)` 반환.
+
+- [x] `test_grid_none_returns_failure_not_exception`
+- [x] `test_grid_none_returns_invalid_size_code`
+- [x] `test_grid_none_returns_grid_must_be_4x4_message`
+- [x] `test_grid_none_returns_pydantic_failure_result_type`
+- [x] `test_grid_none_repeat_call_returns_same_failure_contract`
+- [x] `test_grid_none_code_equals_invalid_size_literal`
+- [x] `test_grid_none_message_equals_prd_section_8_1_literal`
+- [x] `test_none_grid_returns_failure_with_invalid_size_code`
+
+**검증:** `python -m pytest tests/boundary/test_boundary_validator_dimension.py::TestNormalFailureReturn -q`
+
+---
+
+### GREEN-1 — U-IN-02 (4×4 차원) · 대응 RED: **R2** (AC-FR-01-01 차원, 2/2)
+
+`BoundaryValidator.validate` — 행·열 개수 4×4 검사 (`[]`, `[[]]*4`, `3×4` 등).
+
+- [x] `test_grid_empty_list_returns_invalid_size_failure`
+- [x] `test_grid_four_empty_rows_returns_invalid_size_failure`
+- [x] `test_grid_3x4_returns_invalid_size_failure`
+- [x] `test_grid_empty_list_code_is_invalid_size_literal`
+- [x] `test_grid_3x4_message_is_grid_must_be_4x4_literal`
+- [x] `test_grid_empty_list_message_character_identity`
+- [x] `test_grid_four_empty_rows_code_character_identity`
+- [x] `test_grid_3x4_code_and_message_character_identity`
+
+**구현 대상:** `src/boundary/boundary_validator.py` ✅
+
+**검증:** `python -m pytest tests/boundary/test_boundary_validator_dimension.py -q` — 16건 통과 (GREEN-0 + GREEN-1)
+
+**대표 node id:** `tests/boundary/test_boundary_validator_dimension.py::TestBoundaryValueCases::test_grid_empty_list_returns_invalid_size_failure`
+
+**연동 (선택, 동일 커밋):** `tests/control/test_solve_orchestration_dimension.py` 5건 — invalid 차원 시 `resolve`/`execute` 0회 ✅
+
+- [x] `test_grid_none_resolve_call_count_zero`
+- [x] `test_grid_empty_list_resolve_never_called`
+- [x] `test_grid_four_empty_rows_resolve_assert_not_called`
+- [x] `test_grid_3x4_resolve_mock_call_count_is_zero`
+- [x] `test_grid_none_resolve_called_fails_via_mock_guard`
+
+---
+
+### GREEN-2 — U-IN-03 (blank count) · 대응 RED: **R3**
+
+blank 개수 ≠ 2 → **E002** (`FailureResult`, 예외 throw 금지).
+
+- [x] `test_u_in_03a_zero_blanks_returns_e002` — 0개 blank
+- [x] `test_u_in_03b_three_blanks_returns_e002` — 3개 blank
+
+**구현 대상:** `src/boundary/boundary_validator.py` (차원 통과 후 blank 검사) ✅
+
+**fixture:** `grid_g0_complete`, `grid_three_blanks` (`tests/conftest.py`)
+
+**검증:** `python -m pytest tests/boundary/test_u_in_blank_count.py -q` — 2건 통과
+
+**대표 node id:** `tests/boundary/test_u_in_blank_count.py::TestBlankCountValidation::test_u_in_03a_zero_blanks_returns_e002`
+
+---
+
+### GREEN-3 — U-IN-04 (value range) · 대응 RED: **R4** (1/2)
+
+범위 위반 → **E004** (`-1`, `17`).
+
+- [x] `test_u_in_04a_below_range_returns_e004`
+- [x] `test_u_in_04b_above_range_returns_e004`
+
+**구현 대상:** `src/boundary/boundary_validator.py` (blank 통과 후 range 검사) ✅
+
+**검증:** `python -m pytest tests/boundary/test_u_in_range.py -q` — 2건 통과
+
+**대표 node id:** `tests/boundary/test_u_in_range.py::TestValueRangeValidation::test_u_in_04a_below_range_returns_e004`
+
+---
+
+### GREEN-4 — U-IN-05 (duplicate) · 대응 RED: **R4** (2/2)
+
+non-zero 중복 → **E005**.
+
+- [x] `test_u_in_05_nonzero_duplicate_returns_e005`
+
+**구현 대상:** `src/boundary/boundary_validator.py` (range 통과 후 duplicate 검사) ✅
+
+**검증:** `python -m pytest tests/boundary/test_u_in_duplicate.py -q` — 1건 통과
+
+**대표 node id:** `tests/boundary/test_u_in_duplicate.py::TestDuplicateValueValidation::test_u_in_05_nonzero_duplicate_returns_e005`
+
+**short-circuit 순서 확인:** 차원(INVALID_SIZE) → blank(E002) → range(E004) → duplicate(E005) ✅
+
+---
+
+### GREEN-5 — U-OUT (성공 출력) · 대응 RED: **R5** (1/2)
+
+유효 G1 입력 → `int[6]`, 1-index 좌표.
+
+- [x] `test_u_out_01_valid_g1_returns_int6_length`
+- [x] `test_u_out_02_valid_g1_coordinates_one_indexed` — 기대 `[2,2,7,3,3,10]`
+
+**fixture:** `grid_g1_two_blanks` (`tests/conftest.py`)  
+**구현 대상:** `src/control/magic_square_control.py`, `src/control/two_cell_solver.py`, `src/entity/*` ✅
+
+**검증:** `python -m pytest tests/boundary/test_u_out_contract.py -q` — 2건 통과
+
+**대표 node id:** `tests/boundary/test_u_out_contract.py::TestSuccessOutputContract::test_u_out_02_valid_g1_coordinates_one_indexed`
+
+---
+
+### GREEN-6 — U-FLOW-02 (execute 격리) · 대응 RED: **R5** / **R6**
+
+invalid 입력 시 `SolvePartialMagicSquare.execute` **call_count == 0**.
+
+- [x] `test_u_flow_02_duplicate_value_execute_call_count_zero`
+- [x] `test_u_flow_02_invalid_blank_count_execute_call_count_zero`
+- [x] `test_u_flow_02_invalid_size_execute_call_count_zero`
+- [x] `test_u_flow_02_null_matrix_execute_call_count_zero`
+- [x] `test_u_flow_02_out_of_range_execute_call_count_zero`
+
+**구현 대상:** `src/control/magic_square_control.py` + `src/entity/solve_partial_magic_square.py` ✅
+
+**검증:** `python -m pytest tests/control/test_u_flow_execute_isolation.py -q` — 5건 통과
+
+**대표 node id:** `tests/control/test_u_flow_execute_isolation.py::TestExecuteIsolationExtended::test_u_flow_02_null_matrix_execute_call_count_zero`
+
+---
+
+### GREEN 메타 — 대응 RED: **R1** (스코프 가드, 구현 불필요)
+
+AC-FR-01-01 SUT 범위 제한 테스트 — RED 커밋 시 이미 GREEN 유지.
+
+- [x] `test_scope_boundary_suite_excludes_blank_count_error_token`
+- [x] `test_scope_boundary_suite_excludes_duplicate_value_token`
+- [x] `test_scope_boundary_suite_excludes_out_of_range_token`
+- [x] `test_scope_boundary_suite_excludes_fr02_to_fr05_domain_components`
+- [x] `test_scope_no_four_by_four_valid_success_test_in_boundary_suite`
+
+**검증:** `python -m pytest tests/boundary/test_ac_fr_01_01_scope.py -q`
+
+---
+
+### GREEN 완료 기준 (Boundary Track)
+
+- [x] `python -m pytest tests/boundary/ -q` — 28건 전부 통과
+- [x] `python -m pytest tests/control/test_solve_orchestration_dimension.py tests/control/test_u_flow_execute_isolation.py -q` — orchestration 10건 통과
+- [ ] Boundary Layer 커버리지 85%+ (`python -m pytest tests/boundary/ --cov=src/boundary --cov-report=term-missing`)
+
+### RED ↔ GREEN 매핑 요약
+
+| RED 묶음 | GREEN 묶음 | Test ID | 상태 |
+|----------|------------|---------|------|
+| R1 | GREEN 메타 | scope guard 5건 | ✅ |
+| R2 | GREEN-0, GREEN-1 | U-IN-01, U-IN-02 | ✅ 16/16 (orchestration 5건 선택) |
+| R3 | GREEN-2 | U-IN-03a/b | ✅ 2/2 |
+| R4 | GREEN-3, GREEN-4 | U-IN-04, U-IN-05 | ✅ 3/3 |
+| R5 | GREEN-5, GREEN-6 | U-OUT, U-FLOW | ✅ 7/7 |
+| R6 | (Domain Track) | D-LOC~D-SOL | ⏳ 별 트랙 |
 
 ---
 

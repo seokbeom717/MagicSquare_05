@@ -14,6 +14,20 @@ from tests.conftest import (
 class TestNormalFailureReturn:
     """AC-FR-01-01, PRD §8.1 INVALID_SIZE — 정상 실패 반환 (Happy Path of Failure)."""
 
+    def test_none_grid_returns_failure_with_invalid_size_code(
+        self, grid_none: None
+    ) -> None:
+        """grid=None must return INVALID_SIZE failure per AC-FR-01-01."""
+        # AC-FR-01-01
+        # Given: grid is None
+        # When: validation runs
+        # Then: code and message match §8.1 INVALID_SIZE contract
+        validator = BoundaryValidator()
+
+        result = validator.validate(grid_none)
+
+        assert_invalid_size_failure(result, label="grid_none")
+
     def test_grid_none_returns_failure_not_exception(
         self, grid_none: None
     ) -> None:
