@@ -188,7 +188,7 @@ MagicSquare_05/
 - [x] TC-A-01: grid=None 입력 → 실패 결과 반환 (Happy Path of Failure)
 - [x] TC-A-02: code가 정확히 "INVALID_SIZE" 문자열인지 검증
 - [x] TC-A-03: message가 "Grid must be 4x4." 와 문자 단위 동일한지 검증
-- [ ] TC-A-04: grid=None 시 Domain 진입점 0회 호출 (mock/spy 검증)
+- [ ] TC-A-04: grid=None 시 Domain 진입점 0회 호출 (mock/spy 검증) — `resolve` 격리 ✅ (`execute`는 GREEN-6)
 - [x] TC-A-05: grid=[] 빈 리스트 → 실패 결과 반환
 - [x] TC-A-06: grid=3×4 크기 불일치 → 실패 결과 반환
 - [x] TC-A-07: 반환 객체 타입이 지정 실패 결과 구조체인지 검증
@@ -252,13 +252,13 @@ MagicSquare_05/
 
 **대표 node id:** `tests/boundary/test_boundary_validator_dimension.py::TestBoundaryValueCases::test_grid_empty_list_returns_invalid_size_failure`
 
-**연동 (선택, 동일 커밋):** `tests/control/test_solve_orchestration_dimension.py` 5건 — invalid 차원 시 `resolve`/`execute` 0회 *(미수행)*
+**연동 (선택, 동일 커밋):** `tests/control/test_solve_orchestration_dimension.py` 5건 — invalid 차원 시 `resolve`/`execute` 0회 ✅
 
-- [ ] `test_grid_none_resolve_call_count_zero`
-- [ ] `test_grid_empty_list_resolve_never_called`
-- [ ] `test_grid_four_empty_rows_resolve_assert_not_called`
-- [ ] `test_grid_3x4_resolve_mock_call_count_is_zero`
-- [ ] `test_grid_none_resolve_called_fails_via_mock_guard`
+- [x] `test_grid_none_resolve_call_count_zero`
+- [x] `test_grid_empty_list_resolve_never_called`
+- [x] `test_grid_four_empty_rows_resolve_assert_not_called`
+- [x] `test_grid_3x4_resolve_mock_call_count_is_zero`
+- [x] `test_grid_none_resolve_called_fails_via_mock_guard`
 
 ---
 
@@ -314,13 +314,15 @@ non-zero 중복 → **E005**.
 
 유효 G1 입력 → `int[6]`, 1-index 좌표.
 
-- [ ] `test_u_out_01_valid_g1_returns_int6_length`
-- [ ] `test_u_out_02_valid_g1_coordinates_one_indexed` — 기대 `[2,2,7,3,3,10]`
+- [x] `test_u_out_01_valid_g1_returns_int6_length`
+- [x] `test_u_out_02_valid_g1_coordinates_one_indexed` — 기대 `[2,2,7,3,3,10]`
 
-**선행:** G1_placeholder fixture 확정 (`tests/entity/conftest.py` 또는 `tests/conftest.py`)  
-**구현 대상:** `src/control/` + Domain solve 경로 (UIBoundary / MagicSquareControl)
+**fixture:** `grid_g1_two_blanks` (`tests/conftest.py`)  
+**구현 대상:** `src/control/magic_square_control.py`, `src/control/two_cell_solver.py`, `src/entity/*` ✅
 
-**검증:** `python -m pytest tests/boundary/test_u_out_contract.py -q`
+**검증:** `python -m pytest tests/boundary/test_u_out_contract.py -q` — 2건 통과
+
+**대표 node id:** `tests/boundary/test_u_out_contract.py::TestSuccessOutputContract::test_u_out_02_valid_g1_coordinates_one_indexed`
 
 ---
 
@@ -356,8 +358,8 @@ AC-FR-01-01 SUT 범위 제한 테스트 — RED 커밋 시 이미 GREEN 유지.
 
 ### GREEN 완료 기준 (Boundary Track)
 
-- [ ] `python -m pytest tests/boundary/ -q` — 28건 전부 통과 *(현재 26/28 — GREEN-5 대기)*
-- [ ] `python -m pytest tests/control/test_solve_orchestration_dimension.py tests/control/test_u_flow_execute_isolation.py -q` — orchestration 통과
+- [x] `python -m pytest tests/boundary/ -q` — 28건 전부 통과
+- [x] `python -m pytest tests/control/test_solve_orchestration_dimension.py -q` — orchestration 5건 통과 *(GREEN-5 control 연동)*
 - [ ] Boundary Layer 커버리지 85%+ (`python -m pytest tests/boundary/ --cov=src/boundary --cov-report=term-missing`)
 
 ### RED ↔ GREEN 매핑 요약
@@ -367,8 +369,8 @@ AC-FR-01-01 SUT 범위 제한 테스트 — RED 커밋 시 이미 GREEN 유지.
 | R1 | GREEN 메타 | scope guard 5건 | ✅ |
 | R2 | GREEN-0, GREEN-1 | U-IN-01, U-IN-02 | ✅ 16/16 (orchestration 5건 선택) |
 | R3 | GREEN-2 | U-IN-03a/b | ✅ 2/2 |
-| R4 | GREEN-3, GREEN-4 | U-IN-04, U-IN-05 | 🟡 2/3 |
-| R5 | GREEN-5, GREEN-6 | U-OUT, U-FLOW | ⏳ |
+| R4 | GREEN-3, GREEN-4 | U-IN-04, U-IN-05 | ✅ 3/3 |
+| R5 | GREEN-5, GREEN-6 | U-OUT, U-FLOW | 🟡 2/7 |
 | R6 | (Domain Track) | D-LOC~D-SOL | ⏳ 별 트랙 |
 
 ---

@@ -83,14 +83,14 @@ def _duplicate_value_failure() -> FailureResult:
 class BoundaryValidator:
     """Validates puzzle grid input at the boundary layer."""
 
-    def validate(self, grid: Any) -> FailureResult:
+    def validate(self, grid: Any) -> FailureResult | None:
         """Validate grid dimensions and structure.
 
         Args:
             grid: Input matrix or None.
 
         Returns:
-            FailureResult when validation fails.
+            FailureResult when validation fails, otherwise None.
         """
         if grid is None:
             return _invalid_size_failure()
@@ -102,4 +102,4 @@ class BoundaryValidator:
             return _out_of_range_failure()
         if _has_duplicate_nonzero(grid):
             return _duplicate_value_failure()
-        raise NotImplementedError()
+        return None
