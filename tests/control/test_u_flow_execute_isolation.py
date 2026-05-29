@@ -18,10 +18,10 @@ class TestExecuteIsolationExtended:
         # Then: execute.call_count == 0
         gateway = PuzzleGateway()
 
-        with patch.object(gateway._control._solver, "execute") as mock_execute:
+        with patch.object(gateway._control, "resolve") as mock_resolve:
             gateway.solve(grid_none)
 
-            assert mock_execute.call_count == 0
+            mock_resolve.assert_not_called()
 
     def test_u_flow_02_invalid_size_execute_call_count_zero(
         self, grid_3x4: list[list[int]]
@@ -33,10 +33,10 @@ class TestExecuteIsolationExtended:
         # Then: execute.call_count == 0
         gateway = PuzzleGateway()
 
-        with patch.object(gateway._control._solver, "execute") as mock_execute:
+        with patch.object(gateway._control, "resolve") as mock_resolve:
             gateway.solve(grid_3x4)
 
-            assert mock_execute.call_count == 0
+            mock_resolve.assert_not_called()
 
     def test_u_flow_02_invalid_blank_count_execute_call_count_zero(
         self, grid_three_blanks: list[list[int]]
@@ -48,10 +48,10 @@ class TestExecuteIsolationExtended:
         # Then: execute.call_count == 0
         gateway = PuzzleGateway()
 
-        with patch.object(gateway._control._solver, "execute") as mock_execute:
+        with patch.object(gateway._control, "resolve") as mock_resolve:
             gateway.solve(grid_three_blanks)
 
-            assert mock_execute.call_count == 0
+            mock_resolve.assert_not_called()
 
     def test_u_flow_02_out_of_range_execute_call_count_zero(
         self, grid_above_range: list[list[int]]
@@ -63,10 +63,10 @@ class TestExecuteIsolationExtended:
         # Then: execute.call_count == 0
         gateway = PuzzleGateway()
 
-        with patch.object(gateway._control._solver, "execute") as mock_execute:
+        with patch.object(gateway._control, "resolve") as mock_resolve:
             gateway.solve(grid_above_range)
 
-            assert mock_execute.call_count == 0
+            mock_resolve.assert_not_called()
 
     def test_u_flow_02_duplicate_value_execute_call_count_zero(
         self, grid_duplicate_eight: list[list[int]]
@@ -78,7 +78,7 @@ class TestExecuteIsolationExtended:
         # Then: execute.call_count == 0
         gateway = PuzzleGateway()
 
-        with patch.object(gateway._control._solver, "execute") as mock_execute:
+        with patch.object(gateway._control, "resolve") as mock_resolve:
             gateway.solve(grid_duplicate_eight)
 
-            assert mock_execute.call_count == 0
+            mock_resolve.assert_not_called()

@@ -98,6 +98,22 @@ def assert_invalid_blank_count_contract(result: Any, *, label: str) -> FailureRe
     )
 
 
+_NO_VALID_COMBINATION_CODE = "E006"
+_NO_VALID_COMBINATION_MESSAGE = (
+    "Both solve attempts failed to satisfy magic square invariants."
+)
+
+
+def assert_no_valid_combination_contract(result: Any, *, label: str) -> FailureResult:
+    """Assert E006 when both Step A and Step B fail."""
+    return assert_error_contract(
+        result,
+        code=_NO_VALID_COMBINATION_CODE,
+        message=_NO_VALID_COMBINATION_MESSAGE,
+        label=label,
+    )
+
+
 def assert_duplicate_number_contract(result: Any, *, label: str) -> FailureResult:
     """Assert DUPLICATE_NUMBER error contract (E005)."""
     return assert_error_contract(

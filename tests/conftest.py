@@ -93,6 +93,17 @@ def grid_g2_reverse_success() -> list[list[int]]:
 
 
 @pytest.fixture
+def grid_normal_success() -> list[list[int]]:
+    """GM normal_success — Step A magic square solution."""
+    return [
+        [16, 2, 3, 13],
+        [5, 11, 10, 8],
+        [9, 7, 0, 12],
+        [4, 14, 15, 0],
+    ]
+
+
+@pytest.fixture
 def grid_g3_unsolvable() -> list[list[int]]:
     """G3 — both steps fail → UnsolvableDomainError (D-SOL-03, GM no_valid_solution)."""
     return [

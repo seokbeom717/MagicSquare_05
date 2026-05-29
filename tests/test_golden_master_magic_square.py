@@ -20,7 +20,9 @@ from tests.golden_master.contracts import (
     assert_duplicate_number_contract,
     assert_int6_success_format,
     assert_invalid_blank_count_contract,
+    assert_no_valid_combination_contract,
     assert_one_index_coordinate_rule,
+    assert_reverse_fallback_assignment,
     assert_row_major_blank_order,
     assert_small_first_combination_rule,
 )
@@ -51,7 +53,7 @@ class TestGoldenMasterMagicSquare:
         solution = assert_int6_success_format(result, label="GM-TC-01")
         assert_one_index_coordinate_rule(solution, label="GM-TC-01")
         assert_row_major_blank_order(grid, solution, label="GM-TC-01")
-        assert_small_first_combination_rule(grid, solution, label="GM-TC-01")
+        assert_reverse_fallback_assignment(grid, solution, label="GM-TC-01")
 
         actual_section = collect_scenario_section("normal_success")
         approve_section("normal_success", actual_section)
@@ -65,9 +67,7 @@ class TestGoldenMasterMagicSquare:
         solution = assert_int6_success_format(result, label="GM-TC-02")
         assert_one_index_coordinate_rule(solution, label="GM-TC-02")
         assert_row_major_blank_order(grid, solution, label="GM-TC-02")
-        # Track B GREEN 전: Step A(small-first) 출력이 baseline에 고정됨.
-        # reverse fallback 검증은 golden master baseline 비교로 수행.
-        assert_small_first_combination_rule(grid, solution, label="GM-TC-02")
+        assert_reverse_fallback_assignment(grid, solution, label="GM-TC-02")
 
         actual_section = collect_scenario_section("reverse_success")
         approve_section("reverse_success", actual_section)
@@ -100,11 +100,7 @@ class TestGoldenMasterMagicSquare:
         grid = NO_VALID_SOLUTION_GRID
 
         result = gateway.solve(grid)
-        solution = assert_int6_success_format(result, label="GM-TC-05")
-        assert_one_index_coordinate_rule(solution, label="GM-TC-05")
-        assert_row_major_blank_order(grid, solution, label="GM-TC-05")
-        assert_small_first_combination_rule(grid, solution, label="GM-TC-05")
-        # Track B GREEN 후 ERR_NO_VALID_COMBINATION 기대 — baseline 재승인 필요.
+        assert_no_valid_combination_contract(result, label="GM-TC-05")
 
         actual_section = collect_scenario_section("no_valid_solution")
         approve_section("no_valid_solution", actual_section)
