@@ -298,13 +298,15 @@ blank 개수 ≠ 2 → **E002** (`FailureResult`, 예외 throw 금지).
 
 non-zero 중복 → **E005**.
 
-- [ ] `test_u_in_05_nonzero_duplicate_returns_e005`
+- [x] `test_u_in_05_nonzero_duplicate_returns_e005`
 
-**구현 대상:** `src/boundary/boundary_validator.py` (range 통과 후 duplicate 검사)
+**구현 대상:** `src/boundary/boundary_validator.py` (range 통과 후 duplicate 검사) ✅
 
-**검증:** `python -m pytest tests/boundary/test_u_in_duplicate.py -q`
+**검증:** `python -m pytest tests/boundary/test_u_in_duplicate.py -q` — 1건 통과
 
-**short-circuit 순서 확인:** 차원(E001) → blank(E002) → range(E004) → duplicate(E005)
+**대표 node id:** `tests/boundary/test_u_in_duplicate.py::TestDuplicateValueValidation::test_u_in_05_nonzero_duplicate_returns_e005`
+
+**short-circuit 순서 확인:** 차원(INVALID_SIZE) → blank(E002) → range(E004) → duplicate(E005) ✅
 
 ---
 
@@ -354,7 +356,7 @@ AC-FR-01-01 SUT 범위 제한 테스트 — RED 커밋 시 이미 GREEN 유지.
 
 ### GREEN 완료 기준 (Boundary Track)
 
-- [ ] `python -m pytest tests/boundary/ -q` — 28건 전부 통과 *(현재 25/28 — GREEN-4~5 대기)*
+- [ ] `python -m pytest tests/boundary/ -q` — 28건 전부 통과 *(현재 26/28 — GREEN-5 대기)*
 - [ ] `python -m pytest tests/control/test_solve_orchestration_dimension.py tests/control/test_u_flow_execute_isolation.py -q` — orchestration 통과
 - [ ] Boundary Layer 커버리지 85%+ (`python -m pytest tests/boundary/ --cov=src/boundary --cov-report=term-missing`)
 

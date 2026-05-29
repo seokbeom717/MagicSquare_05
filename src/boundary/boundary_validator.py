@@ -16,6 +16,8 @@ _OUT_OF_RANGE_CODE = "E004"
 _OUT_OF_RANGE_MESSAGE = "Values must be 0 or 1..16."
 _MIN_CELL_VALUE = 1
 _MAX_CELL_VALUE = 16
+_DUPLICATE_VALUE_CODE = "E005"
+_DUPLICATE_VALUE_MESSAGE = "Non-zero values must be unique."
 
 
 def _invalid_size_failure() -> FailureResult:
@@ -59,6 +61,25 @@ def _out_of_range_failure() -> FailureResult:
     )
 
 
+def _has_duplicate_nonzero(grid: list[list[int]]) -> bool:
+    seen: set[int] = set()
+    for row in grid:
+        for cell in row:
+            if cell == 0:
+                continue
+            if cell in seen:
+                return True
+            seen.add(cell)
+    return False
+
+
+def _duplicate_value_failure() -> FailureResult:
+    return FailureResult(
+        code=_DUPLICATE_VALUE_CODE,
+        message=_DUPLICATE_VALUE_MESSAGE,
+    )
+
+
 class BoundaryValidator:
     """Validates puzzle grid input at the boundary layer."""
 
@@ -79,4 +100,6 @@ class BoundaryValidator:
             return _invalid_blank_count_failure()
         if not _has_valid_value_range(grid):
             return _out_of_range_failure()
+        if _has_duplicate_nonzero(grid):
+            return _duplicate_value_failure()
         raise NotImplementedError()
