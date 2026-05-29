@@ -119,15 +119,27 @@ class GridPanel(QWidget):
             for cell in row:
                 cell.set_highlighted(False)
 
-    def apply_solution(self, result: list[int]) -> None:
-        """Fill blank cells from a six-element success result."""
+    def _placements_from_solution(
+        self, result: list[int]
+    ) -> tuple[tuple[int, int, int], tuple[int, int, int]]:
+        """Convert 1-index int[6] into 0-index (row, col, value) placements."""
         row_a, col_a, value_a, row_b, col_b, value_b = result
-        answer_cells = (
-            self._cells[row_a - 1][col_a - 1],
-            self._cells[row_b - 1][col_b - 1],
+        return (
+            (row_a - 1, col_a - 1, value_a),
+            (row_b - 1, col_b - 1, value_b),
         )
-        for cell, value in zip(answer_cells, (value_a, value_b), strict=True):
+
+    def _apply_placements(
+        self, placements: tuple[tuple[int, int, int], tuple[int, int, int]]
+    ) -> None:
+        """Write values into grid cells and highlight answers."""
+        for row, col, value in placements:
+            cell = self._cells[row][col]
             cell.blockSignals(True)
             cell.set_value(value)
             cell.blockSignals(False)
             cell.set_highlighted(True)
+
+    def apply_solution(self, result: list[int]) -> None:
+        """Fill blank cells from a six-element success result."""
+        self._apply_placements(self._placements_from_solution(result))
