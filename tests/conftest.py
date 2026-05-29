@@ -41,6 +41,10 @@ def expected_failure_payload() -> dict[str, str]:
     return {"code": AC_FR_01_01_CODE, "message": AC_FR_01_01_MESSAGE}
 
 
+# --- Report/09 §6 grid placeholders (RED skeleton — uncomment at GREEN) ---
+# G0_placeholder: complete magic square (see tests/entity/conftest.py)
+# G1_placeholder: two blanks, missing {7, 10} (see tests/entity/conftest.py)
+
 def assert_invalid_size_failure(result: Any, *, label: str) -> None:
     """Assert standard failure object for dimension violations."""
     assert result is not None, f"{label}: result must not be None"
