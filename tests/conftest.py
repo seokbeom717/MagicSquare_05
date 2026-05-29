@@ -82,6 +82,28 @@ def grid_g1_two_blanks() -> list[list[int]]:
 
 
 @pytest.fixture
+def grid_g2_reverse_success() -> list[list[int]]:
+    """G2 — Step A fails, Step B succeeds (D-SOL-02, GM reverse_success)."""
+    return [
+        [0, 0, 2, 13],
+        [5, 10, 11, 8],
+        [9, 6, 7, 12],
+        [4, 15, 14, 1],
+    ]
+
+
+@pytest.fixture
+def grid_g3_unsolvable() -> list[list[int]]:
+    """G3 — both steps fail → UnsolvableDomainError (D-SOL-03, GM no_valid_solution)."""
+    return [
+        [0, 3, 2, 0],
+        [5, 10, 15, 8],
+        [9, 6, 7, 12],
+        [4, 11, 14, 1],
+    ]
+
+
+@pytest.fixture
 def grid_below_range() -> list[list[int]]:
     """4x4 with two blanks and -1 at [0][0] (U-IN-04a)."""
     return [
