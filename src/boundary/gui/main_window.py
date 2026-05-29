@@ -18,14 +18,8 @@ from PyQt6.QtWidgets import (
 from src.boundary.failure_result import FailureResult
 from src.boundary.gui.grid_panel import GridPanel
 from src.boundary.gui.random_puzzle import generate_random_puzzle
+from src.boundary.demo_data import SAMPLE_G1_GRID
 from src.boundary.ui_boundary import UiBoundary
-
-_SAMPLE_G1_GRID: list[list[int]] = [
-    [16, 2, 3, 13],
-    [5, 0, 11, 8],
-    [9, 6, 0, 12],
-    [4, 14, 15, 1],
-]
 
 
 class MagicSquareMainWindow(QMainWindow):
@@ -130,7 +124,7 @@ class MagicSquareMainWindow(QMainWindow):
 
     def _on_load_sample(self) -> None:
         """Load the G1 sample puzzle from test fixtures."""
-        self._grid_panel.set_grid(_SAMPLE_G1_GRID)
+        self._grid_panel.set_grid(SAMPLE_G1_GRID)
         self._status_label.setStyleSheet("")
         self._status_label.setText(
             "샘플 퍼즐을 불러왔습니다. 「해결」을 눌러 빈칸을 채우세요."
