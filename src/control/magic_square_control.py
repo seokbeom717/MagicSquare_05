@@ -6,7 +6,7 @@ from typing import Any
 
 from src.boundary.boundary_validator import BoundaryValidator
 from src.boundary.failure_result import FailureResult
-from src.control.two_cell_solver import solution
+from src.entity.solve_partial_magic_square import SolvePartialMagicSquare
 
 
 class MagicSquareControl:
@@ -14,6 +14,7 @@ class MagicSquareControl:
 
     def __init__(self) -> None:
         self._validator = BoundaryValidator()
+        self._solver = SolvePartialMagicSquare()
 
     def solve(self, grid: Any) -> FailureResult | list[int]:
         """Validate input and resolve when validation passes."""
@@ -23,5 +24,5 @@ class MagicSquareControl:
         return self.resolve(grid)
 
     def resolve(self, grid: list[list[int]]) -> list[int]:
-        """Invoke domain solver on a validated grid."""
-        return solution(grid)
+        """Invoke domain resolver execute on a validated grid."""
+        return self._solver.execute(grid)

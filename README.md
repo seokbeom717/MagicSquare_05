@@ -330,15 +330,17 @@ non-zero 중복 → **E005**.
 
 invalid 입력 시 `SolvePartialMagicSquare.execute` **call_count == 0**.
 
-- [ ] `test_u_flow_02_duplicate_value_execute_call_count_zero`
-- [ ] `test_u_flow_02_invalid_blank_count_execute_call_count_zero`
-- [ ] `test_u_flow_02_invalid_size_execute_call_count_zero`
-- [ ] `test_u_flow_02_null_matrix_execute_call_count_zero`
-- [ ] `test_u_flow_02_out_of_range_execute_call_count_zero`
+- [x] `test_u_flow_02_duplicate_value_execute_call_count_zero`
+- [x] `test_u_flow_02_invalid_blank_count_execute_call_count_zero`
+- [x] `test_u_flow_02_invalid_size_execute_call_count_zero`
+- [x] `test_u_flow_02_null_matrix_execute_call_count_zero`
+- [x] `test_u_flow_02_out_of_range_execute_call_count_zero`
 
-**구현 대상:** `src/control/` 오케스트레이션 (Boundary 실패 시 Domain 미진입)
+**구현 대상:** `src/control/magic_square_control.py` + `src/entity/solve_partial_magic_square.py` ✅
 
-**검증:** `python -m pytest tests/control/test_u_flow_execute_isolation.py -q`
+**검증:** `python -m pytest tests/control/test_u_flow_execute_isolation.py -q` — 5건 통과
+
+**대표 node id:** `tests/control/test_u_flow_execute_isolation.py::TestExecuteIsolationExtended::test_u_flow_02_null_matrix_execute_call_count_zero`
 
 ---
 
@@ -359,7 +361,7 @@ AC-FR-01-01 SUT 범위 제한 테스트 — RED 커밋 시 이미 GREEN 유지.
 ### GREEN 완료 기준 (Boundary Track)
 
 - [x] `python -m pytest tests/boundary/ -q` — 28건 전부 통과
-- [x] `python -m pytest tests/control/test_solve_orchestration_dimension.py -q` — orchestration 5건 통과 *(GREEN-5 control 연동)*
+- [x] `python -m pytest tests/control/test_solve_orchestration_dimension.py tests/control/test_u_flow_execute_isolation.py -q` — orchestration 10건 통과
 - [ ] Boundary Layer 커버리지 85%+ (`python -m pytest tests/boundary/ --cov=src/boundary --cov-report=term-missing`)
 
 ### RED ↔ GREEN 매핑 요약
