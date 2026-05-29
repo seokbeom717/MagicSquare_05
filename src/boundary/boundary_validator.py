@@ -27,6 +27,29 @@ def _invalid_size_failure() -> FailureResult:
     )
 
 
+def _structure_failure(grid: Any) -> FailureResult | None:
+    """Return INVALID_SIZE when grid is not a 4x4 list-of-lists."""
+    if grid is None:
+        return _invalid_size_failure()
+    if not isinstance(grid, list):
+        return _invalid_size_failure()
+    if len(grid) != _EXPECTED_DIMENSION:
+        return _invalid_size_failure()
+    for row in grid:
+        if not isinstance(row, list) or len(row) != _EXPECTED_DIMENSION:
+            return _invalid_size_failure()
+    return None
+
+
+def _non_int_cell_failure(grid: list[list[Any]]) -> FailureResult | None:
+    """Return E004 when any cell is not a strict int."""
+    for row in grid:
+        for cell in row:
+            if type(cell) is not int:
+                return _out_of_range_failure()
+    return None
+
+
 def _has_valid_dimensions(grid: list[list[int]]) -> bool:
     if len(grid) != _EXPECTED_DIMENSION:
         return False
@@ -92,10 +115,13 @@ class BoundaryValidator:
         Returns:
             FailureResult when validation fails, otherwise None.
         """
-        if grid is None:
-            return _invalid_size_failure()
-        if not isinstance(grid, list) or not _has_valid_dimensions(grid):
-            return _invalid_size_failure()
+        structure = _structure_failure(grid)
+        if structure is not None:
+            return structure
+        assert isinstance(grid, list)
+        cell_type = _non_int_cell_failure(grid)
+        if cell_type is not None:
+            return cell_type
         if _count_blanks(grid) != _REQUIRED_BLANK_COUNT:
             return _invalid_blank_count_failure()
         if not _has_valid_value_range(grid):
