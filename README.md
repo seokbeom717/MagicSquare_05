@@ -210,6 +210,161 @@ MagicSquare_05/
 
 ---
 
+## GREEN 단계 To-Do 리스트
+
+> RED 커밋 묶음(R1~R6)에 대응하는 GREEN(최소 구현) 체크리스트입니다.  
+> 각 묶음을 GREEN 처리한 뒤 해당 범위 pytest를 실행하고, 통과 시 체크합니다.  
+> 정렬 기준: Report/09 검증 파이프라인 순서 — 차원 → blank → range → duplicate → 출력 → 오케스트레이션.
+
+### GREEN-0 — U-IN-01 (`grid=None`) · 대응 RED: **R2** (AC-FR-01-01 차원, 1/2)
+
+`BoundaryValidator.validate` — `None` 입력 시 `FailureResult(INVALID_SIZE)` 반환.
+
+- [x] `test_grid_none_returns_failure_not_exception`
+- [x] `test_grid_none_returns_invalid_size_code`
+- [x] `test_grid_none_returns_grid_must_be_4x4_message`
+- [x] `test_grid_none_returns_pydantic_failure_result_type`
+- [x] `test_grid_none_repeat_call_returns_same_failure_contract`
+- [x] `test_grid_none_code_equals_invalid_size_literal`
+- [x] `test_grid_none_message_equals_prd_section_8_1_literal`
+- [x] `test_none_grid_returns_failure_with_invalid_size_code`
+
+**검증:** `python -m pytest tests/boundary/test_boundary_validator_dimension.py::TestNormalFailureReturn -q`
+
+---
+
+### GREEN-1 — U-IN-02 (4×4 차원) · 대응 RED: **R2** (AC-FR-01-01 차원, 2/2)
+
+`BoundaryValidator.validate` — 행·열 개수 4×4 검사 (`[]`, `[[]]*4`, `3×4` 등).
+
+- [ ] `test_grid_empty_list_returns_invalid_size_failure`
+- [ ] `test_grid_four_empty_rows_returns_invalid_size_failure`
+- [ ] `test_grid_3x4_returns_invalid_size_failure`
+- [ ] `test_grid_empty_list_code_is_invalid_size_literal`
+- [ ] `test_grid_3x4_message_is_grid_must_be_4x4_literal`
+- [ ] `test_grid_empty_list_message_character_identity`
+- [ ] `test_grid_four_empty_rows_code_character_identity`
+- [ ] `test_grid_3x4_code_and_message_character_identity`
+
+**구현 대상:** `src/boundary/boundary_validator.py`
+
+**검증:** `python -m pytest tests/boundary/test_boundary_validator_dimension.py -q`
+
+**연동 (선택, 동일 커밋):** `tests/control/test_solve_orchestration_dimension.py` 5건 — invalid 차원 시 `resolve`/`execute` 0회
+
+- [ ] `test_grid_none_resolve_call_count_zero`
+- [ ] `test_grid_empty_list_resolve_never_called`
+- [ ] `test_grid_four_empty_rows_resolve_assert_not_called`
+- [ ] `test_grid_3x4_resolve_mock_call_count_is_zero`
+- [ ] `test_grid_none_resolve_called_fails_via_mock_guard`
+
+---
+
+### GREEN-2 — U-IN-03 (blank count) · 대응 RED: **R3**
+
+스켈레톤 `pytest.fail` → Full RED assert 교체 후, blank 개수 ≠ 2 → **E002**.
+
+- [ ] `test_u_in_03a_zero_blanks_returns_e002` — 0개 blank
+- [ ] `test_u_in_03b_three_blanks_returns_e002` — 3개 blank
+
+**구현 대상:** `src/boundary/boundary_validator.py` (차원 통과 후 blank 검사)
+
+**선행:** G0/G1 placeholder fixture 또는 테스트 내 4×4 격자 정의
+
+**검증:** `python -m pytest tests/boundary/test_u_in_blank_count.py -q`
+
+---
+
+### GREEN-3 — U-IN-04 (value range) · 대응 RED: **R4** (1/2)
+
+범위 위반 → **E004** (`-1`, `17`).
+
+- [ ] `test_u_in_04a_below_range_returns_e004`
+- [ ] `test_u_in_04b_above_range_returns_e004`
+
+**구현 대상:** `src/boundary/boundary_validator.py` (blank 통과 후 range 검사)
+
+**검증:** `python -m pytest tests/boundary/test_u_in_range.py -q`
+
+---
+
+### GREEN-4 — U-IN-05 (duplicate) · 대응 RED: **R4** (2/2)
+
+non-zero 중복 → **E005**.
+
+- [ ] `test_u_in_05_nonzero_duplicate_returns_e005`
+
+**구현 대상:** `src/boundary/boundary_validator.py` (range 통과 후 duplicate 검사)
+
+**검증:** `python -m pytest tests/boundary/test_u_in_duplicate.py -q`
+
+**short-circuit 순서 확인:** 차원(E001) → blank(E002) → range(E004) → duplicate(E005)
+
+---
+
+### GREEN-5 — U-OUT (성공 출력) · 대응 RED: **R5** (1/2)
+
+유효 G1 입력 → `int[6]`, 1-index 좌표.
+
+- [ ] `test_u_out_01_valid_g1_returns_int6_length`
+- [ ] `test_u_out_02_valid_g1_coordinates_one_indexed` — 기대 `[2,2,7,3,3,10]`
+
+**선행:** G1_placeholder fixture 확정 (`tests/entity/conftest.py` 또는 `tests/conftest.py`)  
+**구현 대상:** `src/control/` + Domain solve 경로 (UIBoundary / MagicSquareControl)
+
+**검증:** `python -m pytest tests/boundary/test_u_out_contract.py -q`
+
+---
+
+### GREEN-6 — U-FLOW-02 (execute 격리) · 대응 RED: **R5** / **R6**
+
+invalid 입력 시 `SolvePartialMagicSquare.execute` **call_count == 0**.
+
+- [ ] `test_u_flow_02_duplicate_value_execute_call_count_zero`
+- [ ] `test_u_flow_02_invalid_blank_count_execute_call_count_zero`
+- [ ] `test_u_flow_02_invalid_size_execute_call_count_zero`
+- [ ] `test_u_flow_02_null_matrix_execute_call_count_zero`
+- [ ] `test_u_flow_02_out_of_range_execute_call_count_zero`
+
+**구현 대상:** `src/control/` 오케스트레이션 (Boundary 실패 시 Domain 미진입)
+
+**검증:** `python -m pytest tests/control/test_u_flow_execute_isolation.py -q`
+
+---
+
+### GREEN 메타 — 대응 RED: **R1** (스코프 가드, 구현 불필요)
+
+AC-FR-01-01 SUT 범위 제한 테스트 — RED 커밋 시 이미 GREEN 유지.
+
+- [x] `test_scope_boundary_suite_excludes_blank_count_error_token`
+- [x] `test_scope_boundary_suite_excludes_duplicate_value_token`
+- [x] `test_scope_boundary_suite_excludes_out_of_range_token`
+- [x] `test_scope_boundary_suite_excludes_fr02_to_fr05_domain_components`
+- [x] `test_scope_no_four_by_four_valid_success_test_in_boundary_suite`
+
+**검증:** `python -m pytest tests/boundary/test_ac_fr_01_01_scope.py -q`
+
+---
+
+### GREEN 완료 기준 (Boundary Track)
+
+- [ ] `python -m pytest tests/boundary/ -q` — 28건 전부 통과
+- [ ] `python -m pytest tests/control/test_solve_orchestration_dimension.py tests/control/test_u_flow_execute_isolation.py -q` — orchestration 통과
+- [ ] Boundary Layer 커버리지 85%+ (`python -m pytest tests/boundary/ --cov=src/boundary --cov-report=term-missing`)
+
+### RED ↔ GREEN 매핑 요약
+
+| RED 묶음 | GREEN 묶음 | Test ID | 상태 |
+|----------|------------|---------|------|
+| R1 | GREEN 메타 | scope guard 5건 | ✅ |
+| R2 | GREEN-0, GREEN-1 | U-IN-01, U-IN-02 | 🟡 8/16 |
+| R3 | GREEN-2 | U-IN-03a/b | ⏳ |
+| R4 | GREEN-3, GREEN-4 | U-IN-04, U-IN-05 | ⏳ |
+| R5 | GREEN-5, GREEN-6 | U-OUT, U-FLOW | ⏳ |
+| R6 | (Domain Track) | D-LOC~D-SOL | ⏳ 별 트랙 |
+
+---
+
 ## 참고
 
 - 4×4 마방진의 본질적으로 다른 해: **880가지**
