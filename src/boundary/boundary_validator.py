@@ -5,17 +5,23 @@ from __future__ import annotations
 from typing import Any
 
 from src.boundary.failure_result import FailureResult
+from src.entity.constants import (
+    GRID_SIZE,
+    MAX_VALUE,
+    MIN_CELL_VALUE,
+    REQUIRED_BLANK_COUNT,
+)
 
 _INVALID_SIZE_CODE = "INVALID_SIZE"
 _INVALID_SIZE_MESSAGE = "Grid must be 4x4."
-_EXPECTED_DIMENSION = 4
+_EXPECTED_DIMENSION = GRID_SIZE
 _INVALID_BLANK_COUNT_CODE = "E002"
 _INVALID_BLANK_COUNT_MESSAGE = "Blank count must be exactly 2."
-_REQUIRED_BLANK_COUNT = 2
+_REQUIRED_BLANK_COUNT = REQUIRED_BLANK_COUNT
 _OUT_OF_RANGE_CODE = "E004"
 _OUT_OF_RANGE_MESSAGE = "Values must be 0 or 1..16."
-_MIN_CELL_VALUE = 1
-_MAX_CELL_VALUE = 16
+_MIN_CELL_VALUE = MIN_CELL_VALUE
+_MAX_CELL_VALUE = MAX_VALUE
 _DUPLICATE_VALUE_CODE = "E005"
 _DUPLICATE_VALUE_MESSAGE = "Non-zero values must be unique."
 

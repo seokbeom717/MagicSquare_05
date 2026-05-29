@@ -12,9 +12,11 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-_GRID_SIZE = 4
-_MAX_CELL_VALUE = 16
-_BLANK_VALUE = 0
+from src.entity.constants import BLANK_CELL_VALUE, GRID_SIZE, MAX_VALUE
+
+_GRID_SIZE = GRID_SIZE
+_MAX_CELL_VALUE = MAX_VALUE
+_BLANK_VALUE = BLANK_CELL_VALUE
 _DEFAULT_STYLE = ""
 _ANSWER_STYLE = "color: #1565c0; font-weight: bold;"
 
