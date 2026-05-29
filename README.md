@@ -2,8 +2,11 @@
 
 4×4 마방진(Magic Square) 프로그램 프로젝트입니다.
 
-이 저장소는 **구현 전 문제 인식 단계**를 거친 결과를 담고 있습니다.  
-마방진을 “만드는 것” 자체가 목적이 아니라, **조건을 먼저 정의하고 구현을 나중에 결정하는 사고 방식**을 훈련하는 것이 이 프로젝트의 핵심 목적입니다.
+**Author:** 김석범 · **Reviewer:** 강희주, 권유리, 권태현, 김경민, 김용준, 김주현, 최선영  
+**활성 브랜치 (Prompting BP):** `bp/prompting_bp` · **구현 브랜치:** `refactor/refactor`
+
+문제 인식(Why/What)부터 **Dual-Track TDD · ECB(boundary → control → entity) · Golden Master 회귀**까지 진행한 저장소입니다.  
+마방진을 “만드는 것” 자체가 목적이 아니라, **조건을 먼저 정의하고 테스트·문서로 검증 가능하게 구현하는 사고 방식**을 훈련하는 것이 핵심 목적입니다.
 
 ---
 
@@ -34,8 +37,36 @@
 | STEP 3 — Why (프로그램) | ✅ 완료 | 프로그램 구현의 필요성 분석 |
 | STEP 4 — Why (TDD) | ✅ 완료 | TDD 설계 접근의 필요성 분석 |
 | STEP 5 — 문제 정의 | ✅ 완료 | 표면/개선 정의, Invariant, 훈련 목표 |
-| 설계 (What) | ⏳ 대기 | 생성기 / 검증기 / 표현기 역할 정의 |
-| 구현 (How) | ⏳ 대기 | TDD 기반 구현 |
+| 설계 (What) | ✅ 완료 | Dual-Track·FR-01~05·ECB ([Report/02](Report/02_MagicSquare_4x4_TDD_design_report.md), [Report/09](Report/09_MagicSquare_dual_track_fr01_fr05_red_design_report.md)) |
+| RED / GREEN | ✅ 완료 | Boundary 38건 · Domain·Control · GM 6/6 |
+| REFACTOR | ✅ 완료 | 그룹 A~C ([Report/15](Report/15_MagicSquare_refactoring_plan_report.md)~[16](Report/16_MagicSquare_refactoring_execution_report.md)) |
+| QA / NFR Gate | ✅ 완료 | SSOT 보정 · gate GREEN ([Report/17](Report/17_MagicSquare_qa_coverage_analysis_report.md)~[18](Report/18_MagicSquare_qa_coverage_gate_green_report.md)) |
+| Session Summary | ✅ 완료 | 통합 실측 ([Report/19](Report/19_MagicSquare_session_summary_report.md)) |
+| Prompting BP 회고 | ✅ 완료 | 개인 KPT·개선 계획 ([Report/Prompting_BP_05_김석범_개인회고_및_개선계획.md](Report/Prompting_BP_05_김석범_개인회고_및_개선계획.md)) |
+| Screen Track 마감 | ⏳ 진행 | PyQt6 · `test_grid_panel` · `python main.py` smoke |
+
+---
+
+## 품질 기준선 (Step 0 · `bp/prompting_bp`)
+
+> 상세: [Report/19](Report/19_MagicSquare_session_summary_report.md) · SSOT: [`docs/test_plan.md`](docs/test_plan.md) §6·§7
+
+| Gate | 명령 / 기준 | 최근 실측 | 판정 |
+|------|-------------|-----------|------|
+| **pytest** | `python -m pytest -q` | **86 passed**, 1 skipped | ✅ |
+| **Golden Master** | `python -m pytest tests/test_golden_master_magic_square.py -q` | **6/6** (GM-TC-00~05) | ✅ |
+| **NFR Domain** | entity+control, ≥95% (gui omit 정책과 별도) | **98%** | ✅ |
+| **NFR Boundary** | 계약 레이어, ≥85% (`.coveragerc` gui omit) | **98%** | ✅ |
+| **NFR 전역** | `src/`, ≥80% (gui omit) | **98%** | ✅ |
+| **RED 스켈레톤** | `pytest.fail("RED: ...")` | **0건** | ✅ |
+| **GUI (수동)** | `python main.py` smoke | 미착수 | ⏳ |
+
+```powershell
+cd c:\DEV\MagicSquare_05
+python -m pytest -q
+python -m pytest tests/test_golden_master_magic_square.py -q
+python -m pytest tests/ --cov=src --cov-report=term-missing
+```
 
 ---
 
@@ -116,8 +147,8 @@ INV-S1 + INV-S2  →  형태의 유효성 (구조가 온전한가)
 
 ```
 Why  : 제약 조건을 만족하는 상태를 재현 가능하게 찾고 검증한다
-What : 생성기, 검증기, 표현기의 세 역할
-How  : (다음 단계)
+What : Boundary 계약 · Domain 솔버 · Screen 표현 (Dual-Track)
+How  : RED → GREEN → REFACTOR · Golden Master · NFR gate
 ```
 
 ### 프로그램으로 구현하는 이유
@@ -151,14 +182,39 @@ How  : (다음 단계)
 
 ```
 MagicSquare_05/
-├── README.md                                          # 이 파일
-├── Prompt/
-│   └── 01_MagicSquare_problem_definition_prompt.md    # 문제 인식 대화 프롬프트 기록
-└── Report/
-    └── 01_MagicSquare_problem_definition_report.md    # 문제 인식 전체 보고서
+├── README.md
+├── main.py
+├── pytest.ini · .coveragerc
+├── src/
+│   ├── boundary/          # validator, puzzle_gateway, ui_boundary, gui/
+│   ├── control/           # magic_square_control
+│   └── entity/            # solver, validator, constants
+├── tests/
+│   ├── boundary/          # U-IN, U-OUT, U-FLOW, gui/
+│   ├── control/
+│   ├── entity/
+│   └── test_golden_master_magic_square.py
+├── docs/
+│   ├── test_plan.md
+│   ├── qa_ssot_mapping.md
+│   └── PRD_MagicSquare.md
+├── Prompt/                # 01~19 단계별 prompt transcript
+├── Report/                # 01~19 보고서 + Prompting BP 개인 회고
+└── scripts/generate_golden_master.py
 ```
 
-상세한 관찰·Why 분석·문제 정의는 [Report/01_MagicSquare_problem_definition_report.md](Report/01_MagicSquare_problem_definition_report.md)를 참고하세요.
+### 주요 문서 (Report)
+
+| 구간 | Report |
+|------|--------|
+| 문제 정의 | [01](Report/01_MagicSquare_problem_definition_report.md) |
+| TDD 설계 · RED | [02](Report/02_MagicSquare_4x4_TDD_design_report.md), [09](Report/09_MagicSquare_dual_track_fr01_fr05_red_design_report.md), [10](Report/10_MagicSquare_red_skeleton_fr01_fr05_report.md) |
+| GREEN · GM · GUI | [11](Report/11_MagicSquare_green_todo_checklist_report.md)~[14](Report/14_MagicSquare_golden_master_report.md) |
+| REFACTOR | [15](Report/15_MagicSquare_refactoring_plan_report.md), [16](Report/16_MagicSquare_refactoring_execution_report.md) |
+| QA · Summary | [17](Report/17_MagicSquare_qa_coverage_analysis_report.md)~[19](Report/19_MagicSquare_session_summary_report.md) |
+| **Prompting BP (개인)** | [Prompting_BP_05_김석범_개인회고_및_개선계획](Report/Prompting_BP_05_김석범_개인회고_및_개선계획.md) |
+
+상세한 관찰·Why 분석·문제 정의는 [Report/01](Report/01_MagicSquare_problem_definition_report.md)을, 통합 실측·gate는 [Report/19](Report/19_MagicSquare_session_summary_report.md)를 참고하세요.
 
 ---
 
@@ -175,9 +231,12 @@ MagicSquare_05/
 
 ## 다음 단계
 
-1. **What 정의** — 생성기 / 검증기 / 표현기의 역할과 입출력 계약 확정
-2. **테스트 설계** — Invariant(M1~M6, S1~S3)를 테스트 케이스로 변환
-3. **How 구현** — TDD 사이클(Red → Green → Refactor)로 점진적 구현
+1. **PyQt6** 설치 후 `pytest tests/boundary/gui/test_grid_panel.py -q` — skip 0 목표
+2. **GUI smoke** — `python main.py` 수동 확인 (README REFACTOR CheckList)
+3. **RF-DEAD** — `boundary_validator` dead code 제거 + boundary 회귀
+4. (선택) `gui/` → `screen/` rename — Report/15 C-2 보류 항목
+
+세션 재개 시 SSOT: [`docs/qa_ssot_mapping.md`](docs/qa_ssot_mapping.md) · GM: `tests/test_golden_master_magic_square.py`
 
 ---
 
@@ -521,7 +580,7 @@ python -m pytest -m golden_master -v
 
 ### REFACTOR 완료 기준
 
-- [x] `python -m pytest tests/ -v` — 전체 PASS (72건, 수집 오류 0건)
+- [x] `python -m pytest tests/ -v` — 전체 PASS (**86 passed**, 1 skipped, 수집 오류 0건)
 - [x] `python -m pytest -m golden_master -v` — GM-TC-00~05 PASS (baseline Track B 재승인)
 - [x] `python -m pytest tests/ --cov=src --cov-fail-under=80` — **98%** (gui omit; PyQt6 있으면 `tests/boundary/gui/test_grid_panel.py` 추가 실행)
 - [x] import 검사 — `control`→`boundary` 없음; `main_window`→`control`/`entity` 직접 import 없음
