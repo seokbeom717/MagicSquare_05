@@ -202,9 +202,9 @@ MagicSquare_05/
 - [x] TC-B-04: AC-FR-01-02~05 범위의 케이스는 이 커밋에 포함하지 않음 확인
 
 ### 커버리지 목표
-- [ ] Domain Logic: 95%+ (`tests/entity/` + `tests/control/`, 현재 ~90%)
-- [ ] Boundary Layer: 85%+ (핵심 모듈 ~97%; `gui/` 포함 패키지 전체 ~35%)
-- [ ] 전체 TOTAL: 80%+ (`.cursor/rules`, 현재 ~50% — GUI 미테스트)
+- [x] Domain Logic: 95%+ (`tests/entity/` + `tests/control/` — **98%**, `--cov-fail-under=95`)
+- [x] Boundary Layer: 85%+ (`.coveragerc` gui omit — **98%**, `--cov-fail-under=85`)
+- [x] 전체 TOTAL: 80%+ (`.coveragerc` gui omit — **98%**, `--cov-fail-under=80`)
 
 ### 결함 목록 연결
 - [x] defect_list.md 생성 및 발견 결함 기록
@@ -395,7 +395,7 @@ AC-FR-01-01 SUT 범위 제한 테스트 — RED 커밋 시 이미 GREEN 유지.
 
 - [x] `python -m pytest tests/boundary/ -q` — **38건** 전부 통과
 - [x] `python -m pytest tests/control/test_solve_orchestration_dimension.py tests/control/test_u_flow_execute_isolation.py -q` — orchestration 10건 통과
-- [ ] Boundary Layer 커버리지 85%+ — 핵심 모듈 ✅ / `gui/` 포함 패키지 전체 미달 ([`qa_ssot_mapping.md`](docs/qa_ssot_mapping.md) §8)
+- [x] Boundary Layer 커버리지 85%+ — **98%** (`.coveragerc` gui omit, `--cov-fail-under=85`)
 
 ### RED ↔ GREEN 매핑 요약
 
@@ -523,7 +523,7 @@ python -m pytest -m golden_master -v
 
 - [x] `python -m pytest tests/ -v` — 전체 PASS (72건, 수집 오류 0건)
 - [x] `python -m pytest -m golden_master -v` — GM-TC-00~05 PASS (baseline Track B 재승인)
-- [ ] `python -m pytest tests/ --cov=src` — 전체 80%+ (현재 ~50%, GUI 미테스트) / boundary 핵심 모듈 85%+ ✅
+- [x] `python -m pytest tests/ --cov=src --cov-fail-under=80` — **98%** (gui omit; PyQt6 있으면 `tests/boundary/gui/test_grid_panel.py` 추가 실행)
 - [x] import 검사 — `control`→`boundary` 없음; `main_window`→`control`/`entity` 직접 import 없음
 - [x] 그룹 A·B·C 핵심 항목 완료 (rename·grid_panel pytest 후속)
 - [ ] GUI smoke — `python main.py` 수동 확인 (로컬)

@@ -1,0 +1,9 @@
+[run]
+# PyQt GUI: automated unit tests when PyQt6 is available; manual smoke otherwise.
+# NFR-02/03 gate measures contract boundary + domain (omit gui drag-down).
+omit =
+    src/boundary/gui/*
+
+[report]
+precision = 0
+show_missing = True

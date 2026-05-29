@@ -26,22 +26,18 @@ class TestIsMagicSquare:
         assert is_magic_square(grid) is False
 
     def test_d_val_03_col_sum_mismatch_returns_false(
-        self, grid_g0_complete: list[list[int]]
+        self, grid_column_sum_mismatch: list[list[int]]
     ) -> None:
         """D-VAL-03: one column sum ≠ 34 → False (I2)."""
-        grid = [row[:] for row in grid_g0_complete]
-        grid[0][0] = 1
-        grid[1][0] = 20
-
-        assert is_magic_square(grid) is False
+        assert is_magic_square(grid_column_sum_mismatch) is False
 
     def test_d_val_04_diagonal_mismatch_returns_false(
         self, grid_g0_complete: list[list[int]]
     ) -> None:
-        """D-VAL-04: diagonal sum ≠ 34 → False (I3)."""
+        """D-VAL-04: main diagonal sum ≠ 34 → False (I3)."""
         grid = [row[:] for row in grid_g0_complete]
         grid[0][0] = 1
-        grid[3][3] = 20
+        grid[1][1] = 20
 
         assert is_magic_square(grid) is False
 

@@ -165,3 +165,5 @@ python -m pytest --cov=src --cov-report=term-missing
 | 버전 | 날짜 | 변경 |
 |------|------|------|
 | 1.0 | 2026-05-29 | QA 커버리지 분석·SSOT 보정·Dual-Track cov 측정 |
+
+> **후속:** [Report/18 — QA NFR gate GREEN](18_MagicSquare_qa_coverage_gate_green_report.md) (커버리지 보완 테스트·`.coveragerc`, 98%/98%/98%)

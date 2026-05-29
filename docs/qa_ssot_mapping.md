@@ -84,7 +84,7 @@
 | `tests/control/` | 10건 (orchestration) | **10건** |
 | `tests/entity/` (D-* + user) | — | **18건** |
 | Golden Master | — | **6건** |
-| **전체** | — | **72 passed** |
+| **전체** | — | **86 passed**, 1 skipped (PyQt6 grid_panel) |
 
 **boundary 38건 내역:** scope 5 + dimension 16 + type_safety 7 + u_in 5 + u_out 2 + ui_boundary 3
 
@@ -121,13 +121,28 @@ python -m pytest `
 
 ### 8.1 해석 규칙
 
-| Track | 목표 | 패키지 전체 (현재) | 비-GUI 핵심 모듈 |
-|-------|------|-------------------|------------------|
-| Domain | ≥ 95% | ~90% | `user.py`·`solve_partial` 제외 시 ~94% |
-| Boundary | ≥ 85% | ~35% (gui 0%) | validator/gateway/ui ~97% |
-| 전역 | ≥ 80% | ~50% (gui drag-down) | GUI pytest 후속 과제 |
+| Track | 목표 | gate 명령 | `.coveragerc` 적용 시 (2026-05-29) |
+|-------|------|-----------|-------------------------------------|
+| Domain | ≥ 95% | `--cov-fail-under=95` | **98%** ✅ |
+| Boundary | ≥ 85% | `--cov-fail-under=85` | **98%** ✅ (gui omit) |
+| 전역 | ≥ 80% | `--cov-fail-under=80` | **98%** ✅ (gui omit) |
 
-**Boundary NFR-02:** `--cov=src/boundary`는 `gui/` 포함. 핵심 계약 모듈만 게이트할 때는 `boundary_validator`, `puzzle_gateway`, `ui_boundary`, `failure_result` term-missing을 별도 확인.
+**`.coveragerc`:** `omit = src/boundary/gui/*` — PyQt GUI는 `tests/boundary/gui/`(PyQt6 설치 시) + 수동 smoke. `random_puzzle` 순수 함수 테스트는 gui 패키지 import 경로로 실행.
+
+**gate 명령 (fail-under 포함):**
+
+```powershell
+python -m pytest tests/entity/ tests/control/ `
+  --cov=src/entity --cov=src/control `
+  --cov-report=term-missing --cov-fail-under=95
+
+python -m pytest tests/boundary/ `
+  --cov=src/boundary `
+  --cov-report=term-missing --cov-fail-under=85
+
+python -m pytest `
+  --cov=src --cov-report=term-missing --cov-fail-under=80
+```
 
 ---
 

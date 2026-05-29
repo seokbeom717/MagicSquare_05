@@ -51,3 +51,14 @@ class TestSolution:
         assert len(result) == 6
         for index in (0, 1, 3, 4):
             assert 1 <= result[index] <= 4
+
+    def test_d_sol_05_step_a_only_returns_without_step_b(
+        self, grid_g4_step_a_only: list[list[int]]
+    ) -> None:
+        """D-SOL-05: Step A magic → early return before Step B (L48)."""
+        step_a = build_step_a_assignment(grid_g4_step_a_only)
+
+        result = solution(grid_g4_step_a_only)
+
+        assert result == step_a
+        assert result == [3, 2, 6, 3, 3, 7]

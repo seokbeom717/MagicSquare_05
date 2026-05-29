@@ -94,13 +94,32 @@ def grid_g2_reverse_success() -> list[list[int]]:
 
 @pytest.fixture
 def grid_normal_success() -> list[list[int]]:
-    """GM normal_success — Step A magic square solution."""
+    """GM normal_success — Step B magic square solution."""
     return [
         [16, 2, 3, 13],
         [5, 11, 10, 8],
         [9, 7, 0, 12],
         [4, 14, 15, 0],
     ]
+
+
+@pytest.fixture
+def grid_g4_step_a_only() -> list[list[int]]:
+    """G4 — Step A magic, Step B non-magic (covers solution() early return)."""
+    return [
+        [16, 3, 2, 13],
+        [5, 10, 11, 8],
+        [9, 0, 0, 12],
+        [4, 15, 14, 1],
+    ]
+
+
+@pytest.fixture
+def grid_column_sum_mismatch(grid_g0_complete: list[list[int]]) -> list[list[int]]:
+    """G0 with swapped row-0 cells — column sum fails, all row sums still 34."""
+    grid = [row[:] for row in grid_g0_complete]
+    grid[0][0], grid[0][1] = grid[0][1], grid[0][0]
+    return grid
 
 
 @pytest.fixture
