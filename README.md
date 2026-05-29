@@ -264,16 +264,18 @@ MagicSquare_05/
 
 ### GREEN-2 — U-IN-03 (blank count) · 대응 RED: **R3**
 
-스켈레톤 `pytest.fail` → Full RED assert 교체 후, blank 개수 ≠ 2 → **E002**.
+blank 개수 ≠ 2 → **E002** (`FailureResult`, 예외 throw 금지).
 
-- [ ] `test_u_in_03a_zero_blanks_returns_e002` — 0개 blank
-- [ ] `test_u_in_03b_three_blanks_returns_e002` — 3개 blank
+- [x] `test_u_in_03a_zero_blanks_returns_e002` — 0개 blank
+- [x] `test_u_in_03b_three_blanks_returns_e002` — 3개 blank
 
-**구현 대상:** `src/boundary/boundary_validator.py` (차원 통과 후 blank 검사)
+**구현 대상:** `src/boundary/boundary_validator.py` (차원 통과 후 blank 검사) ✅
 
-**선행:** G0/G1 placeholder fixture 또는 테스트 내 4×4 격자 정의
+**fixture:** `grid_g0_complete`, `grid_three_blanks` (`tests/conftest.py`)
 
-**검증:** `python -m pytest tests/boundary/test_u_in_blank_count.py -q`
+**검증:** `python -m pytest tests/boundary/test_u_in_blank_count.py -q` — 2건 통과
+
+**대표 node id:** `tests/boundary/test_u_in_blank_count.py::TestBlankCountValidation::test_u_in_03a_zero_blanks_returns_e002`
 
 ---
 
@@ -350,7 +352,7 @@ AC-FR-01-01 SUT 범위 제한 테스트 — RED 커밋 시 이미 GREEN 유지.
 
 ### GREEN 완료 기준 (Boundary Track)
 
-- [ ] `python -m pytest tests/boundary/ -q` — 28건 전부 통과 *(현재 21/28 — GREEN-2~5 대기)*
+- [ ] `python -m pytest tests/boundary/ -q` — 28건 전부 통과 *(현재 23/28 — GREEN-3~5 대기)*
 - [ ] `python -m pytest tests/control/test_solve_orchestration_dimension.py tests/control/test_u_flow_execute_isolation.py -q` — orchestration 통과
 - [ ] Boundary Layer 커버리지 85%+ (`python -m pytest tests/boundary/ --cov=src/boundary --cov-report=term-missing`)
 
