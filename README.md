@@ -406,35 +406,44 @@ AC-FR-01-01 SUT 범위 제한 테스트 — RED 커밋 시 이미 GREEN 유지.
 
 ---
 
-## REFACTOR 단계 To-Do 리스트
+## Refactoring CheckList
 
 > Track A GREEN·Golden Master 구축 완료 후 진행.  
 > **원칙:** `.cursor/rules/magicsquare-tdd-testing.mdc` — GREEN 통과 → 구조 변경 → 전체 회귀 PASS → 커버리지 유지.  
-> **ECB 허용 의존:** `boundary → control`, `control → entity` / **금지:** `control → boundary`, `entity → boundary|control`, Screen→Control 직접 호출.
+> **ECB 허용 의존:** `boundary → control`, `control → entity` / **금지:** `control → boundary`, `entity → boundary|control`, Screen→Control 직접 호출.  
+> **실행 순서:** **A → B → C** (이전 P0/P1/P2를 3개 유형 그룹으로 통합)
+
+### 유형 그룹 요약
+
+| 그룹 | 유형 | 목적 | 실행 시점 |
+|------|------|------|-----------|
+| **A** | 기반·계약 고정 | Domain·테스트·에러 envelope 고정 — 리팩터 안전망 | 구조 변경 **전** (구 P0 선행) |
+| **B** | ECB·책임 분리 | `boundary → control → entity` 정렬, SRP·솔버 SSOT | A GREEN 후 (구 P0~P1 핵심) |
+| **C** | 일관성·정리 | 상수 SSOT, 명명, dead code·fixture 정리 | 전체 PASS 후 (구 P1~P2) |
+
+상세 분석: [Report/15_MagicSquare_refactoring_plan_report.md](Report/15_MagicSquare_refactoring_plan_report.md)
 
 ### ECB 실제 파일 매핑 (프롬프트 ↔ 저장소)
 
 | 프롬프트 (목표) | 현재 `src/` 파일 | 비고 |
 |-----------------|------------------|------|
-| `control/solve_partial_magic_square.py` | `entity/solve_partial_magic_square.py`, `control/two_cell_solver.py`, `control/magic_square_control.py` | 솔버·오케스트레이션 분산 |
-| `boundary/ui_boundary.py` | **없음** — `boundary/boundary_validator.py` (입력 검증만) | E006/E007·직렬화 레이어 미구현 |
-| `boundary/screen/main_window.py` | `boundary/gui/main_window.py`, `boundary/gui/grid_panel.py` | `screen/` 디렉터리 없음 |
-
-상세 분석: [Report/15_MagicSquare_refactoring_plan_report.md](Report/15_MagicSquare_refactoring_plan_report.md)
+| `control/solve_partial_magic_square.py` | `entity/two_cell_solver.py`, `entity/solve_partial_magic_square.py`, `control/magic_square_control.py` | `solution()` SSOT in entity |
+| `boundary/ui_boundary.py` | `boundary/ui_boundary.py`, `boundary/puzzle_gateway.py` | E006 unsolvable envelope |
+| `boundary/screen/main_window.py` | `boundary/gui/main_window.py`, `boundary/gui/grid_panel.py` | `gui/` rename deferred (change budget) |
 
 ---
 
-### P0 — REFACTOR 선행 (Track B GREEN + 계약 고정)
+### 그룹 A — 기반·계약 고정
 
 > 구조 변경 **전** 반드시 GREEN. `pytest.ini`의 `--continue-on-collection-errors`로 entity import 오류가 조용히 스킵될 수 있음 — 전체 스위트 실행 권장.
 
-#### P0-0 — Entity Track B 테스트 GREEN
+#### A-1 — Entity Track B 테스트 GREEN
 
-- [ ] `test_d_loc_blank_coords.py` — import `blank_locator.find_blank_coords` 수정 + GREEN
-- [ ] `test_d_mis_missing_numbers.py` — import `find_missing_numbers` 수정 + GREEN
-- [ ] `test_d_val_magic_square.py` — `is_magic_square` 6건 GREEN (구현은 존재)
-- [ ] `test_d_sol_solution.py` — D-SOL-01~04 GREEN (Step A/B, unsolvable, int[6])
-- [ ] Golden Master GM-TC-02/05 baseline 재승인 (Track B GREEN 후)
+- [x] `test_d_loc_blank_coords.py` — import `blank_locator.find_blank_coords` 수정 + GREEN
+- [x] `test_d_mis_missing_numbers.py` — import `find_missing_numbers` 수정 + GREEN
+- [x] `test_d_val_magic_square.py` — `is_magic_square` 6건 GREEN (구현은 존재)
+- [x] `test_d_sol_solution.py` — D-SOL-01~04 GREEN (Step A/B, unsolvable, int[6])
+- [x] Golden Master GM-TC-02/05 baseline 재승인 (Track B GREEN 후)
 
 **검증:**
 
@@ -443,69 +452,73 @@ python -m pytest tests/entity/test_d_loc_blank_coords.py tests/entity/test_d_mis
 python -m pytest -m golden_master -v
 ```
 
-#### P0-1 — ECB: Control에서 Boundary 검증 분리
+#### A-2 — Domain·Boundary 계약 (FR-05, envelope)
 
-- [ ] `MagicSquareControl.solve()`에서 `BoundaryValidator` 제거 — invalid 시 `resolve`/`execute` 0회 유지
-- [ ] Boundary 진입(`ui_boundary` 또는 CLI/GUI 진입)에서 E001~E005 검증 후 valid grid만 Control에 전달
+- [x] Entity: `blank_locator`, `missing_number_finder`, `is_magic_square`, 순수 assignment
+- [x] unsolvable → `UnsolvableDomainError` / `E006` (`PuzzleGateway`)
+- [x] `boundary_validator.py` — non-int·non-list·jagged row → `FailureResult` (TypeError 금지)
+- [x] 신규 테스트: `tests/boundary/test_boundary_validator_type_safety.py`
+- [x] `FailureResult` vs `FailureResponse` envelope 단일화 (`InputValidator` delegate)
+
+**대상:** `entity/solve_partial_magic_square.py`, `src/boundary/boundary_validator.py`
+
+---
+
+### 그룹 B — ECB·책임 분리
+
+> 그룹 A GREEN 후 진행. invalid 입력 시 Domain `resolve`/`execute` 0회 유지.
+
+#### B-1 — Control ↔ Boundary 역전 해소
+
+- [x] `MagicSquareControl` — `BoundaryValidator` 제거 (`resolve` only)
+- [x] `PuzzleGateway` — E001~E005 검증 후 valid grid만 Control에 전달
 
 **대상:** `src/control/magic_square_control.py`  
 **검증:** `python -m pytest tests/control/test_u_flow_execute_isolation.py tests/control/test_solve_orchestration_dimension.py tests/boundary/ -q`
 
-#### P0-2 — 솔버 단일 SSOT + FR-05 완성
+#### B-2 — 솔버 단일 SSOT (진입점·오케스트레이션)
 
-- [ ] Entity: `blank_locator`, `missing_number_finder`, `is_magic_square`, 순수 assignment
-- [ ] Control: Step A/B 오케스트레이션 — `two_cell_solver.solution` 단일 진입점
-- [ ] `SolvePartialMagicSquare.execute`와 `magic_square_control.resolve` 중복 제거
-- [ ] unsolvable → `UnsolvableDomainError` / `ERR_NO_VALID_COMBINATION`
+- [x] Control/Entity: `entity/two_cell_solver.solution` 단일 진입점
+- [x] `SolvePartialMagicSquare.execute` → `solution()` 위임
 
 **대상:** `entity/solve_partial_magic_square.py`, `control/two_cell_solver.py`
 
-#### P0-3 — Boundary 타입 안전 (E001~E005 envelope)
+#### B-3 — `ui_boundary` 신규 + Screen 책임 축소
 
-- [ ] non-int·non-list·jagged row 입력 시 `FailureResult` 반환 (TypeError 금지)
-- [ ] 신규 테스트: `tests/boundary/test_boundary_validator_type_safety.py` (또는 dimension 확장)
+- [x] `ui_boundary` — Screen↔`PuzzleGateway` 중재, E006 envelope
+- [x] 신규 테스트: `tests/boundary/test_ui_boundary.py`
+- [x] `main_window` — `UiBoundary.solve_puzzle`만 호출
+- [x] `grid_panel.apply_solution` — `_placements_from_solution` / `_apply_placements` 분리
+- [ ] 신규 테스트: `tests/boundary/gui/test_grid_panel.py` (후속 — PyQt 단위 테스트)
 
-**대상:** `src/boundary/boundary_validator.py`
-
----
-
-### P1 — ECB 구조 분리 (P0 GREEN 후)
-
-#### P1-1 — `ui_boundary` 신규
-
-- [ ] Screen↔Control 중재, Error/int[6] envelope 직렬화, E006/E007 매핑
-- [ ] 신규 테스트: `tests/boundary/test_ui_boundary.py`
-
-#### P1-2 — Screen 책임 축소
-
-- [ ] `main_window` — Control 직접 호출 제거 → `ui_boundary`만 호출
-- [ ] `_SAMPLE_G1_GRID` fixture → `tests/` 또는 `boundary/demo_data.py`
-- [ ] `grid_panel.apply_solution` — 좌표 변환/적용 분리
-- [ ] 신규 테스트: `tests/boundary/gui/test_grid_panel.py`
-
-**대상:** `boundary/gui/main_window.py`, `boundary/gui/grid_panel.py`
-
-#### P1-3 — Boundary 정리
-
-- [ ] `input_validator.py` 스텁 제거 또는 `BoundaryValidator` thin wrapper로 통합
-- [ ] `FailureResult` vs `FailureResponse` envelope 단일화
+**대상:** `boundary/gui/main_window.py`, `boundary/gui/grid_panel.py` (신규 `boundary/ui_boundary.py`)
 
 ---
 
-### P2 — SSOT·명명 (회귀 PASS 후)
+### 그룹 C — 일관성·정리
 
-- [ ] `entity/constants.py` SSOT — boundary/GUI의 4/16/2/34 중복 제거
-- [ ] `gui/` → `screen/`, `entity/solve_partial` → `control/solve_partial` rename (관찰 계약 불변)
+> 그룹 B 완료·전체 회귀 PASS 후. 관찰 계약(테스트·GM·E001~E005) 불변 유지.
+
+#### C-1 — Boundary·테스트 데이터 정리
+
+- [x] `input_validator.py` — `BoundaryValidator` thin delegate
+- [x] `SAMPLE_G1_GRID` → `boundary/demo_data.py`
+
+#### C-2 — SSOT·명명
+
+- [x] `entity/constants.py` SSOT — `boundary_validator`, `grid_panel`, `random_puzzle`
+- [ ] `gui/` → `screen/`, `entity/solve_partial` → `control/solve_partial` rename — **보류** (폴더 rename change budget)
 
 ---
 
 ### REFACTOR 완료 기준
 
-- [ ] `python -m pytest tests/ -v` — 전체 PASS (수집 오류 0건 목표)
-- [ ] `python -m pytest -m golden_master -v` — GM-TC-00~05 PASS
-- [ ] `python -m pytest tests/ --cov=src --cov-report=term-missing` — 전체 80%+, boundary 85%+
-- [ ] import 검사 — `control`에서 `boundary` import 없음; `main_window`에서 `control`/`entity` 직접 import 없음 (P1 완료 후)
-- [ ] GUI smoke — `python main.py` 샘플/해결/invalid/랜덤/초기화 수동 확인
+- [x] `python -m pytest tests/ -v` — 전체 PASS (72건, 수집 오류 0건)
+- [x] `python -m pytest -m golden_master -v` — GM-TC-00~05 PASS (baseline Track B 재승인)
+- [ ] `python -m pytest tests/ --cov=src` — 전체 80%+ (현재 ~50%, GUI 미테스트) / boundary 핵심 모듈 85%+ ✅
+- [x] import 검사 — `control`→`boundary` 없음; `main_window`→`control`/`entity` 직접 import 없음
+- [x] 그룹 A·B·C 핵심 항목 완료 (rename·grid_panel pytest 후속)
+- [ ] GUI smoke — `python main.py` 수동 확인 (로컬)
 
 ### REFACTOR 회귀 검증 명령어 (요약)
 
