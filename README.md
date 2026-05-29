@@ -185,13 +185,13 @@ MagicSquare_05/
 > 각 항목은 RED(실패 테스트 작성) 완료 시 체크합니다.
 
 ### Track A — UI / Boundary 테스트
-- [ ] TC-A-01: grid=None 입력 → 실패 결과 반환 (Happy Path of Failure)
-- [ ] TC-A-02: code가 정확히 "INVALID_SIZE" 문자열인지 검증
-- [ ] TC-A-03: message가 "Grid must be 4x4." 와 문자 단위 동일한지 검증
+- [x] TC-A-01: grid=None 입력 → 실패 결과 반환 (Happy Path of Failure)
+- [x] TC-A-02: code가 정확히 "INVALID_SIZE" 문자열인지 검증
+- [x] TC-A-03: message가 "Grid must be 4x4." 와 문자 단위 동일한지 검증
 - [ ] TC-A-04: grid=None 시 Domain 진입점 0회 호출 (mock/spy 검증)
-- [ ] TC-A-05: grid=[] 빈 리스트 → 실패 결과 반환
-- [ ] TC-A-06: grid=3×4 크기 불일치 → 실패 결과 반환
-- [ ] TC-A-07: 반환 객체 타입이 지정 실패 결과 구조체인지 검증
+- [x] TC-A-05: grid=[] 빈 리스트 → 실패 결과 반환
+- [x] TC-A-06: grid=3×4 크기 불일치 → 실패 결과 반환
+- [x] TC-A-07: 반환 객체 타입이 지정 실패 결과 구조체인지 검증
 
 ### Track B — Domain / Logic 테스트
 - [ ] TC-B-01: resolve()가 None grid를 직접 받지 않음을 격리 검증
@@ -237,20 +237,22 @@ MagicSquare_05/
 
 `BoundaryValidator.validate` — 행·열 개수 4×4 검사 (`[]`, `[[]]*4`, `3×4` 등).
 
-- [ ] `test_grid_empty_list_returns_invalid_size_failure`
-- [ ] `test_grid_four_empty_rows_returns_invalid_size_failure`
-- [ ] `test_grid_3x4_returns_invalid_size_failure`
-- [ ] `test_grid_empty_list_code_is_invalid_size_literal`
-- [ ] `test_grid_3x4_message_is_grid_must_be_4x4_literal`
-- [ ] `test_grid_empty_list_message_character_identity`
-- [ ] `test_grid_four_empty_rows_code_character_identity`
-- [ ] `test_grid_3x4_code_and_message_character_identity`
+- [x] `test_grid_empty_list_returns_invalid_size_failure`
+- [x] `test_grid_four_empty_rows_returns_invalid_size_failure`
+- [x] `test_grid_3x4_returns_invalid_size_failure`
+- [x] `test_grid_empty_list_code_is_invalid_size_literal`
+- [x] `test_grid_3x4_message_is_grid_must_be_4x4_literal`
+- [x] `test_grid_empty_list_message_character_identity`
+- [x] `test_grid_four_empty_rows_code_character_identity`
+- [x] `test_grid_3x4_code_and_message_character_identity`
 
-**구현 대상:** `src/boundary/boundary_validator.py`
+**구현 대상:** `src/boundary/boundary_validator.py` ✅
 
-**검증:** `python -m pytest tests/boundary/test_boundary_validator_dimension.py -q`
+**검증:** `python -m pytest tests/boundary/test_boundary_validator_dimension.py -q` — 16건 통과 (GREEN-0 + GREEN-1)
 
-**연동 (선택, 동일 커밋):** `tests/control/test_solve_orchestration_dimension.py` 5건 — invalid 차원 시 `resolve`/`execute` 0회
+**대표 node id:** `tests/boundary/test_boundary_validator_dimension.py::TestBoundaryValueCases::test_grid_empty_list_returns_invalid_size_failure`
+
+**연동 (선택, 동일 커밋):** `tests/control/test_solve_orchestration_dimension.py` 5건 — invalid 차원 시 `resolve`/`execute` 0회 *(미수행)*
 
 - [ ] `test_grid_none_resolve_call_count_zero`
 - [ ] `test_grid_empty_list_resolve_never_called`
@@ -348,7 +350,7 @@ AC-FR-01-01 SUT 범위 제한 테스트 — RED 커밋 시 이미 GREEN 유지.
 
 ### GREEN 완료 기준 (Boundary Track)
 
-- [ ] `python -m pytest tests/boundary/ -q` — 28건 전부 통과
+- [ ] `python -m pytest tests/boundary/ -q` — 28건 전부 통과 *(현재 21/28 — GREEN-2~5 대기)*
 - [ ] `python -m pytest tests/control/test_solve_orchestration_dimension.py tests/control/test_u_flow_execute_isolation.py -q` — orchestration 통과
 - [ ] Boundary Layer 커버리지 85%+ (`python -m pytest tests/boundary/ --cov=src/boundary --cov-report=term-missing`)
 
@@ -357,7 +359,7 @@ AC-FR-01-01 SUT 범위 제한 테스트 — RED 커밋 시 이미 GREEN 유지.
 | RED 묶음 | GREEN 묶음 | Test ID | 상태 |
 |----------|------------|---------|------|
 | R1 | GREEN 메타 | scope guard 5건 | ✅ |
-| R2 | GREEN-0, GREEN-1 | U-IN-01, U-IN-02 | 🟡 8/16 |
+| R2 | GREEN-0, GREEN-1 | U-IN-01, U-IN-02 | ✅ 16/16 (orchestration 5건 선택) |
 | R3 | GREEN-2 | U-IN-03a/b | ⏳ |
 | R4 | GREEN-3, GREEN-4 | U-IN-04, U-IN-05 | ⏳ |
 | R5 | GREEN-5, GREEN-6 | U-OUT, U-FLOW | ⏳ |
