@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from src.control.magic_square_control import MagicSquareControl
+from src.boundary.puzzle_gateway import PuzzleGateway
 
 
 class TestSuccessOutputContract:
@@ -16,9 +16,9 @@ class TestSuccessOutputContract:
         # Given: G1_placeholder (valid input contract)
         # When: MagicSquareControl.solve(matrix)
         # Then: success=true; len(result) == 6
-        control = MagicSquareControl()
+        gateway = PuzzleGateway()
 
-        result = control.solve(grid_g1_two_blanks)
+        result = gateway.solve(grid_g1_two_blanks)
 
         assert isinstance(result, list)
         assert len(result) == 6
@@ -31,8 +31,8 @@ class TestSuccessOutputContract:
         # Given: G1_placeholder
         # When: MagicSquareControl.solve(matrix)
         # Then: result[0],result[1],result[3],result[4] in 1..4
-        control = MagicSquareControl()
+        gateway = PuzzleGateway()
 
-        result = control.solve(grid_g1_two_blanks)
+        result = gateway.solve(grid_g1_two_blanks)
 
         assert result == [2, 2, 7, 3, 3, 10]

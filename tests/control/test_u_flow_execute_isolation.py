@@ -4,9 +4,7 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
-from src.control.magic_square_control import MagicSquareControl
-
-
+from src.boundary.puzzle_gateway import PuzzleGateway
 class TestExecuteIsolationExtended:
     """AC-FR01-05 — Domain resolver execute() call_count == 0 on invalid input."""
 
@@ -18,10 +16,10 @@ class TestExecuteIsolationExtended:
         # Given: matrix is None
         # When: MagicSquareControl.solve(matrix) with execute spy
         # Then: execute.call_count == 0
-        control = MagicSquareControl()
+        gateway = PuzzleGateway()
 
-        with patch.object(control._solver, "execute") as mock_execute:
-            control.solve(grid_none)
+        with patch.object(gateway._control._solver, "execute") as mock_execute:
+            gateway.solve(grid_none)
 
             assert mock_execute.call_count == 0
 
@@ -33,10 +31,10 @@ class TestExecuteIsolationExtended:
         # Given: non-4x4 grid
         # When: solve + execute spy
         # Then: execute.call_count == 0
-        control = MagicSquareControl()
+        gateway = PuzzleGateway()
 
-        with patch.object(control._solver, "execute") as mock_execute:
-            control.solve(grid_3x4)
+        with patch.object(gateway._control._solver, "execute") as mock_execute:
+            gateway.solve(grid_3x4)
 
             assert mock_execute.call_count == 0
 
@@ -48,10 +46,10 @@ class TestExecuteIsolationExtended:
         # Given: three blank cells
         # When: solve + execute spy
         # Then: execute.call_count == 0
-        control = MagicSquareControl()
+        gateway = PuzzleGateway()
 
-        with patch.object(control._solver, "execute") as mock_execute:
-            control.solve(grid_three_blanks)
+        with patch.object(gateway._control._solver, "execute") as mock_execute:
+            gateway.solve(grid_three_blanks)
 
             assert mock_execute.call_count == 0
 
@@ -63,10 +61,10 @@ class TestExecuteIsolationExtended:
         # Given: range violation with two blanks
         # When: solve + execute spy
         # Then: execute.call_count == 0
-        control = MagicSquareControl()
+        gateway = PuzzleGateway()
 
-        with patch.object(control._solver, "execute") as mock_execute:
-            control.solve(grid_above_range)
+        with patch.object(gateway._control._solver, "execute") as mock_execute:
+            gateway.solve(grid_above_range)
 
             assert mock_execute.call_count == 0
 
@@ -78,9 +76,9 @@ class TestExecuteIsolationExtended:
         # Given: duplicate non-zero values
         # When: solve + execute spy
         # Then: execute.call_count == 0
-        control = MagicSquareControl()
+        gateway = PuzzleGateway()
 
-        with patch.object(control._solver, "execute") as mock_execute:
-            control.solve(grid_duplicate_eight)
+        with patch.object(gateway._control._solver, "execute") as mock_execute:
+            gateway.solve(grid_duplicate_eight)
 
             assert mock_execute.call_count == 0

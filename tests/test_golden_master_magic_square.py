@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-from src.control.magic_square_control import MagicSquareControl
+from src.boundary.puzzle_gateway import PuzzleGateway
 from tests.golden_master.approval import (
     collect_scenario_section,
     run_golden_master_approval,
@@ -44,10 +44,10 @@ class TestGoldenMasterMagicSquare:
 
     def test_gm_tc_01_normal_success(self) -> None:
         """GM-TC-01: 정상 조합 성공 — int[6], row-major, 1-index, small-first."""
-        control = MagicSquareControl()
+        gateway = PuzzleGateway()
         grid = NORMAL_SUCCESS_GRID
 
-        result = control.solve(grid)
+        result = gateway.solve(grid)
         solution = assert_int6_success_format(result, label="GM-TC-01")
         assert_one_index_coordinate_rule(solution, label="GM-TC-01")
         assert_row_major_blank_order(grid, solution, label="GM-TC-01")
@@ -58,10 +58,10 @@ class TestGoldenMasterMagicSquare:
 
     def test_gm_tc_02_reverse_success(self) -> None:
         """GM-TC-02: reverse 조합 성공 — baseline + coordinate contract."""
-        control = MagicSquareControl()
+        gateway = PuzzleGateway()
         grid = REVERSE_SUCCESS_GRID
 
-        result = control.solve(grid)
+        result = gateway.solve(grid)
         solution = assert_int6_success_format(result, label="GM-TC-02")
         assert_one_index_coordinate_rule(solution, label="GM-TC-02")
         assert_row_major_blank_order(grid, solution, label="GM-TC-02")
@@ -74,10 +74,10 @@ class TestGoldenMasterMagicSquare:
 
     def test_gm_tc_03_invalid_blank_count(self) -> None:
         """GM-TC-03: INVALID_BLANK_COUNT — Error Contract (E002)."""
-        control = MagicSquareControl()
+        gateway = PuzzleGateway()
         grid = INVALID_BLANK_COUNT_GRID
 
-        result = control.solve(grid)
+        result = gateway.solve(grid)
         assert_invalid_blank_count_contract(result, label="GM-TC-03")
 
         actual_section = collect_scenario_section("invalid_blank_count")
@@ -85,10 +85,10 @@ class TestGoldenMasterMagicSquare:
 
     def test_gm_tc_04_duplicate_number(self) -> None:
         """GM-TC-04: DUPLICATE_NUMBER — Error Contract (E005)."""
-        control = MagicSquareControl()
+        gateway = PuzzleGateway()
         grid = DUPLICATE_NUMBER_GRID
 
-        result = control.solve(grid)
+        result = gateway.solve(grid)
         assert_duplicate_number_contract(result, label="GM-TC-04")
 
         actual_section = collect_scenario_section("duplicate_number")
@@ -96,10 +96,10 @@ class TestGoldenMasterMagicSquare:
 
     def test_gm_tc_05_no_valid_magic_square(self) -> None:
         """GM-TC-05: NO_VALID_MAGIC_SQUARE — baseline + int[6] contract."""
-        control = MagicSquareControl()
+        gateway = PuzzleGateway()
         grid = NO_VALID_SOLUTION_GRID
 
-        result = control.solve(grid)
+        result = gateway.solve(grid)
         solution = assert_int6_success_format(result, label="GM-TC-05")
         assert_one_index_coordinate_rule(solution, label="GM-TC-05")
         assert_row_major_blank_order(grid, solution, label="GM-TC-05")
