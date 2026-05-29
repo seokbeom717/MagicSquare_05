@@ -12,6 +12,10 @@ _EXPECTED_DIMENSION = 4
 _INVALID_BLANK_COUNT_CODE = "E002"
 _INVALID_BLANK_COUNT_MESSAGE = "Blank count must be exactly 2."
 _REQUIRED_BLANK_COUNT = 2
+_OUT_OF_RANGE_CODE = "E004"
+_OUT_OF_RANGE_MESSAGE = "Values must be 0 or 1..16."
+_MIN_CELL_VALUE = 1
+_MAX_CELL_VALUE = 16
 
 
 def _invalid_size_failure() -> FailureResult:
@@ -38,6 +42,23 @@ def _invalid_blank_count_failure() -> FailureResult:
     )
 
 
+def _has_valid_value_range(grid: list[list[int]]) -> bool:
+    for row in grid:
+        for cell in row:
+            if cell == 0:
+                continue
+            if cell < _MIN_CELL_VALUE or cell > _MAX_CELL_VALUE:
+                return False
+    return True
+
+
+def _out_of_range_failure() -> FailureResult:
+    return FailureResult(
+        code=_OUT_OF_RANGE_CODE,
+        message=_OUT_OF_RANGE_MESSAGE,
+    )
+
+
 class BoundaryValidator:
     """Validates puzzle grid input at the boundary layer."""
 
@@ -56,4 +77,6 @@ class BoundaryValidator:
             return _invalid_size_failure()
         if _count_blanks(grid) != _REQUIRED_BLANK_COUNT:
             return _invalid_blank_count_failure()
+        if not _has_valid_value_range(grid):
+            return _out_of_range_failure()
         raise NotImplementedError()

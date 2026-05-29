@@ -283,12 +283,14 @@ blank 개수 ≠ 2 → **E002** (`FailureResult`, 예외 throw 금지).
 
 범위 위반 → **E004** (`-1`, `17`).
 
-- [ ] `test_u_in_04a_below_range_returns_e004`
-- [ ] `test_u_in_04b_above_range_returns_e004`
+- [x] `test_u_in_04a_below_range_returns_e004`
+- [x] `test_u_in_04b_above_range_returns_e004`
 
-**구현 대상:** `src/boundary/boundary_validator.py` (blank 통과 후 range 검사)
+**구현 대상:** `src/boundary/boundary_validator.py` (blank 통과 후 range 검사) ✅
 
-**검증:** `python -m pytest tests/boundary/test_u_in_range.py -q`
+**검증:** `python -m pytest tests/boundary/test_u_in_range.py -q` — 2건 통과
+
+**대표 node id:** `tests/boundary/test_u_in_range.py::TestValueRangeValidation::test_u_in_04a_below_range_returns_e004`
 
 ---
 
@@ -352,7 +354,7 @@ AC-FR-01-01 SUT 범위 제한 테스트 — RED 커밋 시 이미 GREEN 유지.
 
 ### GREEN 완료 기준 (Boundary Track)
 
-- [ ] `python -m pytest tests/boundary/ -q` — 28건 전부 통과 *(현재 23/28 — GREEN-3~5 대기)*
+- [ ] `python -m pytest tests/boundary/ -q` — 28건 전부 통과 *(현재 25/28 — GREEN-4~5 대기)*
 - [ ] `python -m pytest tests/control/test_solve_orchestration_dimension.py tests/control/test_u_flow_execute_isolation.py -q` — orchestration 통과
 - [ ] Boundary Layer 커버리지 85%+ (`python -m pytest tests/boundary/ --cov=src/boundary --cov-report=term-missing`)
 
@@ -362,8 +364,8 @@ AC-FR-01-01 SUT 범위 제한 테스트 — RED 커밋 시 이미 GREEN 유지.
 |----------|------------|---------|------|
 | R1 | GREEN 메타 | scope guard 5건 | ✅ |
 | R2 | GREEN-0, GREEN-1 | U-IN-01, U-IN-02 | ✅ 16/16 (orchestration 5건 선택) |
-| R3 | GREEN-2 | U-IN-03a/b | ⏳ |
-| R4 | GREEN-3, GREEN-4 | U-IN-04, U-IN-05 | ⏳ |
+| R3 | GREEN-2 | U-IN-03a/b | ✅ 2/2 |
+| R4 | GREEN-3, GREEN-4 | U-IN-04, U-IN-05 | 🟡 2/3 |
 | R5 | GREEN-5, GREEN-6 | U-OUT, U-FLOW | ⏳ |
 | R6 | (Domain Track) | D-LOC~D-SOL | ⏳ 별 트랙 |
 
