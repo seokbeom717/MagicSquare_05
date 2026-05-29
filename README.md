@@ -188,7 +188,7 @@ MagicSquare_05/
 - [x] TC-A-01: grid=None 입력 → 실패 결과 반환 (Happy Path of Failure)
 - [x] TC-A-02: code가 정확히 "INVALID_SIZE" 문자열인지 검증
 - [x] TC-A-03: message가 "Grid must be 4x4." 와 문자 단위 동일한지 검증
-- [ ] TC-A-04: grid=None 시 Domain 진입점 0회 호출 (mock/spy 검증) — `resolve` 격리 ✅ (`execute`는 GREEN-6)
+- [x] TC-A-04: grid=None 시 Domain 진입점 0회 호출 (mock/spy 검증)
 - [x] TC-A-05: grid=[] 빈 리스트 → 실패 결과 반환
 - [x] TC-A-06: grid=3×4 크기 불일치 → 실패 결과 반환
 - [x] TC-A-07: 반환 객체 타입이 지정 실패 결과 구조체인지 검증
@@ -372,7 +372,7 @@ AC-FR-01-01 SUT 범위 제한 테스트 — RED 커밋 시 이미 GREEN 유지.
 | R2 | GREEN-0, GREEN-1 | U-IN-01, U-IN-02 | ✅ 16/16 (orchestration 5건 선택) |
 | R3 | GREEN-2 | U-IN-03a/b | ✅ 2/2 |
 | R4 | GREEN-3, GREEN-4 | U-IN-04, U-IN-05 | ✅ 3/3 |
-| R5 | GREEN-5, GREEN-6 | U-OUT, U-FLOW | 🟡 2/7 |
+| R5 | GREEN-5, GREEN-6 | U-OUT, U-FLOW | ✅ 7/7 |
 | R6 | (Domain Track) | D-LOC~D-SOL | ⏳ 별 트랙 |
 
 ---
