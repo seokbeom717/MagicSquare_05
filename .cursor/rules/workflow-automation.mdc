@@ -1,0 +1,24 @@
+---
+description: GitHub push retry, token usage, report automation, and allow policy
+alwaysApply: false
+---
+# Workflow Automation Rules
+
+## GitHub Push Retry
+
+- When a GitHub push fails due to TCP/network failure, retry at least 3 times before reporting failure.
+
+## GitHub Token Reference
+
+- If GitHub push requires a token, reference `C:\DEV\github token\token.txt`.
+- Treat token values as secrets: never print full token in chat, logs, or committed files.
+
+## "보고서 작성" Automation
+
+- If the user requests "보고서 작성", run these steps automatically:
+  1. Write the report in the `Report` folder.
+  2. Export the full conversation transcript so far as an interactive prompt transcript in the `Prompt` folder.
+
+## Allow Policy
+
+- If an operation requires Allow permission and the action is clearly requested by the user, proceed with Allow automatically without additional confirmation.

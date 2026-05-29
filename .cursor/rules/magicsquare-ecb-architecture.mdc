@@ -1,0 +1,24 @@
+---
+description: ECB architecture roles, boundaries, and dependency direction
+globs: "src/**/*.py"
+alwaysApply: false
+---
+
+# ECB Architecture
+
+## Layer Responsibilities
+
+- `boundary`: handles external I/O (UI, API, CLI), request validation, and response formatting.
+- `control`: coordinates use cases, orchestrates entity operations, and enforces application-level policy.
+- `entity`: defines domain models and invariants, encapsulates core business rules, independent from I/O/frameworks.
+
+## Dependency Direction
+
+- Allowed: `boundary -> control`, `control -> entity`
+- Forbidden: `control -> boundary`, `entity -> control`, `entity -> boundary`, `boundary -> entity`
+
+## Design Constraints
+
+- Keep implementation details aligned to the target layer.
+- Do not leak transport, framework, or persistence concerns into `entity`.
+- Preserve clean layer contracts when adding or refactoring behavior.
