@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
+from src.boundary.boundary_validator import BoundaryValidator
+from src.boundary.failure_result import FailureResult
 from src.boundary.input_validator import InputValidator
-from src.boundary.schemas import FailureResponse
 
-__all__ = ["FailureResponse", "InputValidator"]
+__all__ = ["BoundaryValidator", "FailureResult", "InputValidator"]

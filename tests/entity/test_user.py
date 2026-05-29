@@ -79,3 +79,26 @@ def test_deactivate_and_activate_user() -> None:
     # Assert
     assert deactivated_status is False
     assert activated_status is True
+
+
+def test_change_username_updates_username() -> None:
+    """Update username when a valid new username is provided."""
+    user = User(user_id=1, username="alice", email="alice@example.com")
+
+    user.change_username("  bob  ")
+
+    assert user.username == "bob"
+
+
+def test_to_dict_returns_serializable_fields() -> None:
+    """Serialize user fields to a plain dictionary."""
+    user = User(user_id=1, username="alice", email="alice@example.com")
+
+    payload = user.to_dict()
+
+    assert payload == {
+        "user_id": 1,
+        "username": "alice",
+        "email": "alice@example.com",
+        "is_active": True,
+    }

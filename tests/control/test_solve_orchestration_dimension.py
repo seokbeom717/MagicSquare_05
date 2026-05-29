@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.control.magic_square_control import MagicSquareControl
+from src.boundary.puzzle_gateway import PuzzleGateway
 from tests.conftest import (
     AC_FR_01_01_CODE,
     AC_FR_01_01_MESSAGE,
@@ -25,10 +25,10 @@ class TestResolveIsolation:
         # Given: grid None and spied resolve
         # When: solve orchestration runs
         # Then: resolve call count is 0
-        control = MagicSquareControl()
+        gateway = PuzzleGateway()
 
-        with patch.object(control, "resolve") as mock_resolve:
-            result = control.solve(grid_none)
+        with patch.object(gateway._control, "resolve") as mock_resolve:
+            result = gateway.solve(grid_none)
 
             mock_resolve.assert_not_called()
 
@@ -42,10 +42,10 @@ class TestResolveIsolation:
         # Given: empty grid and spied resolve
         # When: solve runs
         # Then: resolve is never called
-        control = MagicSquareControl()
+        gateway = PuzzleGateway()
 
-        with patch.object(control, "resolve") as mock_resolve:
-            control.solve(grid_empty)
+        with patch.object(gateway._control, "resolve") as mock_resolve:
+            gateway.solve(grid_empty)
 
             assert mock_resolve.call_count == 0
 
@@ -57,10 +57,10 @@ class TestResolveIsolation:
         # Given: four empty rows and spied resolve
         # When: solve runs
         # Then: assert_not_called passes
-        control = MagicSquareControl()
+        gateway = PuzzleGateway()
 
-        with patch.object(control, "resolve") as mock_resolve:
-            control.solve(grid_four_empty_rows)
+        with patch.object(gateway._control, "resolve") as mock_resolve:
+            gateway.solve(grid_four_empty_rows)
 
             mock_resolve.assert_not_called()
 
@@ -72,10 +72,12 @@ class TestResolveIsolation:
         # Given: 3×4 grid and MagicMock resolve
         # When: solve runs
         # Then: mock.call_count == 0
-        control = MagicSquareControl()
+        gateway = PuzzleGateway()
 
-        with patch.object(control, "resolve", new_callable=MagicMock) as mock_resolve:
-            result = control.solve(grid_3x4)
+        with patch.object(
+            gateway._control, "resolve", new_callable=MagicMock
+        ) as mock_resolve:
+            result = gateway.solve(grid_3x4)
 
             assert mock_resolve.call_count == 0
             assert result.code == AC_FR_01_01_CODE
@@ -88,16 +90,16 @@ class TestResolveIsolation:
         # Given: resolve mock that fails when touched
         # When: solve runs with grid None
         # Then: resolve is not called and failure contract still holds
-        control = MagicSquareControl()
+        gateway = PuzzleGateway()
 
         def _fail_if_resolve_called(*_args: object, **_kwargs: object) -> None:
             pytest.fail("resolve() must not be called when grid is None")
 
         with patch.object(
-            control,
+            gateway._control,
             "resolve",
             side_effect=_fail_if_resolve_called,
         ):
-            result = control.solve(grid_none)
+            result = gateway.solve(grid_none)
 
         assert result.message == AC_FR_01_01_MESSAGE

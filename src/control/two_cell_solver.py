@@ -1,14 +1,17 @@
-"""Two-combination solver use case (FR-05)."""
+"""Control-layer re-exports for the domain two-cell solver (FR-05)."""
 
 from __future__ import annotations
 
-from src.entity.solve_partial_magic_square import SolvePartialMagicSquare
+from src.entity.two_cell_solver import (
+    UnsolvableDomainError,
+    build_step_a_assignment,
+    build_step_b_assignment,
+    solution,
+)
 
-
-class UnsolvableDomainError(Exception):
-    """Raised when both solve attempts fail."""
-
-
-def solution(grid: list[list[int]]) -> list[int]:
-    """Return Step A assignment via domain resolver execute."""
-    return SolvePartialMagicSquare().execute(grid)
+__all__ = [
+    "UnsolvableDomainError",
+    "build_step_a_assignment",
+    "build_step_b_assignment",
+    "solution",
+]

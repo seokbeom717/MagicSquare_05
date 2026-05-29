@@ -5,8 +5,10 @@ from __future__ import annotations
 import random
 from copy import deepcopy
 
-_GRID_SIZE = 4
-_REQUIRED_BLANK_COUNT = 2
+from src.entity.constants import GRID_SIZE, REQUIRED_BLANK_COUNT
+
+_GRID_SIZE = GRID_SIZE
+_REQUIRED_BLANK_COUNT = REQUIRED_BLANK_COUNT
 
 _BASE_MAGIC_SQUARES: list[list[list[int]]] = [
     [

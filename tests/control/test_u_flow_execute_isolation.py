@@ -4,9 +4,7 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
-from src.control.magic_square_control import MagicSquareControl
-
-
+from src.boundary.puzzle_gateway import PuzzleGateway
 class TestExecuteIsolationExtended:
     """AC-FR01-05 — Domain resolver execute() call_count == 0 on invalid input."""
 
@@ -18,12 +16,12 @@ class TestExecuteIsolationExtended:
         # Given: matrix is None
         # When: MagicSquareControl.solve(matrix) with execute spy
         # Then: execute.call_count == 0
-        control = MagicSquareControl()
+        gateway = PuzzleGateway()
 
-        with patch.object(control._solver, "execute") as mock_execute:
-            control.solve(grid_none)
+        with patch.object(gateway._control, "resolve") as mock_resolve:
+            gateway.solve(grid_none)
 
-            assert mock_execute.call_count == 0
+            mock_resolve.assert_not_called()
 
     def test_u_flow_02_invalid_size_execute_call_count_zero(
         self, grid_3x4: list[list[int]]
@@ -33,12 +31,12 @@ class TestExecuteIsolationExtended:
         # Given: non-4x4 grid
         # When: solve + execute spy
         # Then: execute.call_count == 0
-        control = MagicSquareControl()
+        gateway = PuzzleGateway()
 
-        with patch.object(control._solver, "execute") as mock_execute:
-            control.solve(grid_3x4)
+        with patch.object(gateway._control, "resolve") as mock_resolve:
+            gateway.solve(grid_3x4)
 
-            assert mock_execute.call_count == 0
+            mock_resolve.assert_not_called()
 
     def test_u_flow_02_invalid_blank_count_execute_call_count_zero(
         self, grid_three_blanks: list[list[int]]
@@ -48,12 +46,12 @@ class TestExecuteIsolationExtended:
         # Given: three blank cells
         # When: solve + execute spy
         # Then: execute.call_count == 0
-        control = MagicSquareControl()
+        gateway = PuzzleGateway()
 
-        with patch.object(control._solver, "execute") as mock_execute:
-            control.solve(grid_three_blanks)
+        with patch.object(gateway._control, "resolve") as mock_resolve:
+            gateway.solve(grid_three_blanks)
 
-            assert mock_execute.call_count == 0
+            mock_resolve.assert_not_called()
 
     def test_u_flow_02_out_of_range_execute_call_count_zero(
         self, grid_above_range: list[list[int]]
@@ -63,12 +61,12 @@ class TestExecuteIsolationExtended:
         # Given: range violation with two blanks
         # When: solve + execute spy
         # Then: execute.call_count == 0
-        control = MagicSquareControl()
+        gateway = PuzzleGateway()
 
-        with patch.object(control._solver, "execute") as mock_execute:
-            control.solve(grid_above_range)
+        with patch.object(gateway._control, "resolve") as mock_resolve:
+            gateway.solve(grid_above_range)
 
-            assert mock_execute.call_count == 0
+            mock_resolve.assert_not_called()
 
     def test_u_flow_02_duplicate_value_execute_call_count_zero(
         self, grid_duplicate_eight: list[list[int]]
@@ -78,9 +76,9 @@ class TestExecuteIsolationExtended:
         # Given: duplicate non-zero values
         # When: solve + execute spy
         # Then: execute.call_count == 0
-        control = MagicSquareControl()
+        gateway = PuzzleGateway()
 
-        with patch.object(control._solver, "execute") as mock_execute:
-            control.solve(grid_duplicate_eight)
+        with patch.object(gateway._control, "resolve") as mock_resolve:
+            gateway.solve(grid_duplicate_eight)
 
-            assert mock_execute.call_count == 0
+            mock_resolve.assert_not_called()

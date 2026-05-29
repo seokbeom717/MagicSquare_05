@@ -19,6 +19,8 @@
 | 본질적으로 다른 해 | 880가지 |
 | 탐색 공간 | 16! ≈ 2×10¹³ |
 
+**QA·커버리지 SSOT:** [`docs/qa_ssot_mapping.md`](docs/qa_ssot_mapping.md) — ECB 경로, GM 파일명, pytest 건수, Dual-Track cov 명령.
+
 겉으로는 “숫자를 채운다”는 문제처럼 보이지만, 실제로는 **방대한 탐색 공간에서 다중 제약 조건을 동시에 만족하는 상태를 찾고 표현하는 문제**입니다.
 
 ---
@@ -194,15 +196,15 @@ MagicSquare_05/
 - [x] TC-A-07: 반환 객체 타입이 지정 실패 결과 구조체인지 검증
 
 ### Track B — Domain / Logic 테스트
-- [ ] TC-B-01: resolve()가 None grid를 직접 받지 않음을 격리 검증
-- [ ] TC-B-02: Boundary가 None 분기를 처리 후 resolve() 미호출 확인
-- [ ] TC-B-03: resolve() mock이 호출됐을 경우 테스트 실패 처리
-- [ ] TC-B-04: AC-FR-01-02~05 범위의 케이스는 이 커밋에 포함하지 않음 확인
+- [x] TC-B-01: resolve()가 None grid를 직접 받지 않음을 격리 검증
+- [x] TC-B-02: Boundary가 None 분기를 처리 후 resolve() 미호출 확인
+- [x] TC-B-03: resolve() mock이 호출됐을 경우 테스트 실패 처리
+- [x] TC-B-04: AC-FR-01-02~05 범위의 케이스는 이 커밋에 포함하지 않음 확인
 
 ### 커버리지 목표
-- [ ] Domain Logic: 95%+ (pip install pytest-cov)
-- [ ] Boundary Layer: 85%+
-- [ ] 전체 TOTAL: 90%+
+- [x] Domain Logic: 95%+ (`tests/entity/` + `tests/control/` — **98%**, `--cov-fail-under=95`)
+- [x] Boundary Layer: 85%+ (`.coveragerc` gui omit — **98%**, `--cov-fail-under=85`)
+- [x] 전체 TOTAL: 80%+ (`.coveragerc` gui omit — **98%**, `--cov-fail-under=80`)
 
 ### 결함 목록 연결
 - [x] defect_list.md 생성 및 발견 결함 기록
@@ -222,11 +224,13 @@ MagicSquare_05/
 
 ### 테스트 코드
 
-- [x] GM-04: `test_golden_master_magic_square` 작성
+- [x] GM-04: `test_golden_master_magic_square.py` 작성
 - [x] GM-05: approve 패턴 적용
 - [x] GM-06: Golden Master 테스트 PASS 확인
 
-**검증:** `python -m pytest -m golden_master -v`
+> **파일명 별칭:** 구 프롬프트 `test_gm_01_magic_square_golden_master.py` → **`tests/test_golden_master_magic_square.py`** (SSOT). GM-01은 baseline **파일** `tests/golden_master_expected.txt`.
+
+**검증:** `python -m pytest -m golden_master -v` (또는 `pytest tests/test_golden_master_magic_square.py -q`)
 
 ### 회귀 보호
 
@@ -389,9 +393,9 @@ AC-FR-01-01 SUT 범위 제한 테스트 — RED 커밋 시 이미 GREEN 유지.
 
 ### GREEN 완료 기준 (Boundary Track)
 
-- [x] `python -m pytest tests/boundary/ -q` — 28건 전부 통과
+- [x] `python -m pytest tests/boundary/ -q` — **38건** 전부 통과
 - [x] `python -m pytest tests/control/test_solve_orchestration_dimension.py tests/control/test_u_flow_execute_isolation.py -q` — orchestration 10건 통과
-- [ ] Boundary Layer 커버리지 85%+ (`python -m pytest tests/boundary/ --cov=src/boundary --cov-report=term-missing`)
+- [x] Boundary Layer 커버리지 85%+ — **98%** (`.coveragerc` gui omit, `--cov-fail-under=85`)
 
 ### RED ↔ GREEN 매핑 요약
 
@@ -402,7 +406,139 @@ AC-FR-01-01 SUT 범위 제한 테스트 — RED 커밋 시 이미 GREEN 유지.
 | R3 | GREEN-2 | U-IN-03a/b | ✅ 2/2 |
 | R4 | GREEN-3, GREEN-4 | U-IN-04, U-IN-05 | ✅ 3/3 |
 | R5 | GREEN-5, GREEN-6 | U-OUT, U-FLOW | ✅ 7/7 |
-| R6 | (Domain Track) | D-LOC~D-SOL | ⏳ 별 트랙 |
+| R6 | (Domain Track) | D-LOC~D-SOL | ✅ 12/12 + user 6건 |
+
+---
+
+## Refactoring CheckList
+
+> Track A GREEN·Golden Master 구축 완료 후 진행.  
+> **원칙:** `.cursor/rules/magicsquare-tdd-testing.mdc` — GREEN 통과 → 구조 변경 → 전체 회귀 PASS → 커버리지 유지.  
+> **ECB 허용 의존:** `boundary → control`, `control → entity` / **금지:** `control → boundary`, `entity → boundary|control`, Screen→Control 직접 호출.  
+> **실행 순서:** **A → B → C** (이전 P0/P1/P2를 3개 유형 그룹으로 통합)
+
+### 유형 그룹 요약
+
+| 그룹 | 유형 | 목적 | 실행 시점 |
+|------|------|------|-----------|
+| **A** | 기반·계약 고정 | Domain·테스트·에러 envelope 고정 — 리팩터 안전망 | 구조 변경 **전** (구 P0 선행) |
+| **B** | ECB·책임 분리 | `boundary → control → entity` 정렬, SRP·솔버 SSOT | A GREEN 후 (구 P0~P1 핵심) |
+| **C** | 일관성·정리 | 상수 SSOT, 명명, dead code·fixture 정리 | 전체 PASS 후 (구 P1~P2) |
+
+상세 분석: [Report/15_MagicSquare_refactoring_plan_report.md](Report/15_MagicSquare_refactoring_plan_report.md)
+
+### ECB 실제 파일 매핑 (프롬프트 ↔ 저장소)
+
+상세: [`docs/qa_ssot_mapping.md`](docs/qa_ssot_mapping.md) §1.
+
+| 프롬프트 (목표/관례) | 현재 `src/` 파일 | 레이어 | 비고 |
+|---------------------|------------------|--------|------|
+| `domain.py` / Control orchestration | `control/magic_square_control.py` | Control | `resolve()` only |
+| Domain solver SSOT | `entity/two_cell_solver.py` | Entity | `solution()` |
+| Domain execute | `entity/solve_partial_magic_square.py` | Entity | `execute()` → `solution()` |
+| `boundary.py` | `boundary_validator.py`, `puzzle_gateway.py`, `ui_boundary.py`, `failure_result.py`, `input_validator.py` | Boundary | `schemas.py` 미사용 |
+| `boundary/screen/main_window.py` | `boundary/gui/main_window.py`, `grid_panel.py` | Screen | `gui/` rename deferred |
+
+---
+
+### 그룹 A — 기반·계약 고정
+
+> 구조 변경 **전** 반드시 GREEN. `pytest.ini`의 `--continue-on-collection-errors`로 entity import 오류가 조용히 스킵될 수 있음 — 전체 스위트 실행 권장.
+
+#### A-1 — Entity Track B 테스트 GREEN
+
+- [x] `test_d_loc_blank_coords.py` — import `blank_locator.find_blank_coords` 수정 + GREEN
+- [x] `test_d_mis_missing_numbers.py` — import `find_missing_numbers` 수정 + GREEN
+- [x] `test_d_val_magic_square.py` — `is_magic_square` 6건 GREEN (구현은 존재)
+- [x] `test_d_sol_solution.py` — D-SOL-01~04 GREEN (Step A/B, unsolvable, int[6])
+- [x] Golden Master GM-TC-02/05 baseline 재승인 (Track B GREEN 후)
+
+**검증:**
+
+```powershell
+python -m pytest tests/entity/test_d_loc_blank_coords.py tests/entity/test_d_mis_missing_numbers.py tests/entity/test_d_val_magic_square.py tests/entity/test_d_sol_solution.py -q
+python -m pytest -m golden_master -v
+```
+
+#### A-2 — Domain·Boundary 계약 (FR-05, envelope)
+
+- [x] Entity: `blank_locator`, `missing_number_finder`, `is_magic_square`, 순수 assignment
+- [x] unsolvable → `UnsolvableDomainError` / `E006` (`PuzzleGateway`)
+- [x] `boundary_validator.py` — non-int·non-list·jagged row → `FailureResult` (TypeError 금지)
+- [x] 신규 테스트: `tests/boundary/test_boundary_validator_type_safety.py`
+- [x] `FailureResult` vs `FailureResponse` envelope 단일화 (`InputValidator` delegate)
+
+**대상:** `entity/solve_partial_magic_square.py`, `src/boundary/boundary_validator.py`
+
+---
+
+### 그룹 B — ECB·책임 분리
+
+> 그룹 A GREEN 후 진행. invalid 입력 시 Domain `resolve`/`execute` 0회 유지.
+
+#### B-1 — Control ↔ Boundary 역전 해소
+
+- [x] `MagicSquareControl` — `BoundaryValidator` 제거 (`resolve` only)
+- [x] `PuzzleGateway` — E001~E005 검증 후 valid grid만 Control에 전달
+
+**대상:** `src/control/magic_square_control.py`  
+**검증:** `python -m pytest tests/control/test_u_flow_execute_isolation.py tests/control/test_solve_orchestration_dimension.py tests/boundary/ -q`
+
+#### B-2 — 솔버 단일 SSOT (진입점·오케스트레이션)
+
+- [x] Control/Entity: `entity/two_cell_solver.solution` 단일 진입점
+- [x] `SolvePartialMagicSquare.execute` → `solution()` 위임
+
+**대상:** `entity/solve_partial_magic_square.py`, `control/two_cell_solver.py`
+
+#### B-3 — `ui_boundary` 신규 + Screen 책임 축소
+
+- [x] `ui_boundary` — Screen↔`PuzzleGateway` 중재, E006 envelope
+- [x] 신규 테스트: `tests/boundary/test_ui_boundary.py`
+- [x] `main_window` — `UiBoundary.solve_puzzle`만 호출
+- [x] `grid_panel.apply_solution` — `_placements_from_solution` / `_apply_placements` 분리
+- [ ] 신규 테스트: `tests/boundary/gui/test_grid_panel.py` (후속 — PyQt 단위 테스트)
+
+**대상:** `boundary/gui/main_window.py`, `boundary/gui/grid_panel.py` (신규 `boundary/ui_boundary.py`)
+
+---
+
+### 그룹 C — 일관성·정리
+
+> 그룹 B 완료·전체 회귀 PASS 후. 관찰 계약(테스트·GM·E001~E005) 불변 유지.
+
+#### C-1 — Boundary·테스트 데이터 정리
+
+- [x] `input_validator.py` — `BoundaryValidator` thin delegate
+- [x] `SAMPLE_G1_GRID` → `boundary/demo_data.py`
+
+#### C-2 — SSOT·명명
+
+- [x] `entity/constants.py` SSOT — `boundary_validator`, `grid_panel`, `random_puzzle`
+- [ ] `gui/` → `screen/`, `entity/solve_partial` → `control/solve_partial` rename — **보류** (폴더 rename change budget)
+
+---
+
+### REFACTOR 완료 기준
+
+- [x] `python -m pytest tests/ -v` — 전체 PASS (72건, 수집 오류 0건)
+- [x] `python -m pytest -m golden_master -v` — GM-TC-00~05 PASS (baseline Track B 재승인)
+- [x] `python -m pytest tests/ --cov=src --cov-fail-under=80` — **98%** (gui omit; PyQt6 있으면 `tests/boundary/gui/test_grid_panel.py` 추가 실행)
+- [x] import 검사 — `control`→`boundary` 없음; `main_window`→`control`/`entity` 직접 import 없음
+- [x] 그룹 A·B·C 핵심 항목 완료 (rename·grid_panel pytest 후속)
+- [ ] GUI smoke — `python main.py` 수동 확인 (로컬)
+
+### REFACTOR 회귀 검증 명령어 (요약)
+
+```powershell
+cd c:\DEV\MagicSquare_05
+python -m pytest tests/boundary/ -q
+python -m pytest tests/control/test_u_flow_execute_isolation.py tests/control/test_solve_orchestration_dimension.py -q
+python -m pytest tests/entity/ -q
+python -m pytest -m golden_master -v
+python -m pytest tests/ -v
+python -m pytest tests/ --cov=src --cov-report=term-missing
+```
 
 ---
 

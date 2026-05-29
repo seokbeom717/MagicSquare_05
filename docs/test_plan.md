@@ -2,9 +2,9 @@
 
 | 항목 | 내용 |
 |------|------|
-| **문서 버전** | 1.0 |
-| **작성 기준** | `docs/PRD_MagicSquare.md`, 샘플 예제 AC-FR01-01 |
-| **대상 AC** | AC-FR01-01 (4×4 아님 → `ERR_INVALID_DIMENSION`), AC-FR01-05 (Domain resolver 미호출) |
+| **문서 버전** | 1.1 |
+| **작성 기준** | `docs/PRD_MagicSquare.md`, `docs/qa_ssot_mapping.md`, 샘플 AC-FR01-01 |
+| **대상 AC** | AC-FR01-01 (4×4 아님 → `INVALID_SIZE`), AC-FR01-05 (Domain `resolve` 미호출) |
 | **기술 스택** | Python 3.11+, pytest, pydantic, unittest.mock |
 | **Track** | Track A — Boundary / UI Contract TDD |
 | **대상 컴포넌트** | `BoundaryValidator` (FR-01), 호출 조율 `Control` (FR-01→FR-05 게이트) |
@@ -17,10 +17,10 @@
 | **BR** | BR-01 (입력 행렬은 정확히 4행 4열) |
 | **FR** | FR-01 Input Verification (PRD §10) |
 | **대표 입력** | `grid = None` |
-| **기대 출력** | `{ "code": "ERR_INVALID_DIMENSION", "message": "Input matrix must be 4x4." }` |
+| **기대 출력** | `{ "code": "INVALID_SIZE", "message": "Grid must be 4x4." }` |
 | **테스트 후보 ID** | TC-BND-001 (RED-BND-VAL-001) |
 
-> **명명 참고:** 일부 작업 문서·예제에서는 `INVALID_SIZE`로 표기할 수 있으나, PRD·계약(§12, §13)의 정식 오류 코드는 **`ERR_INVALID_DIMENSION`** 이다. 본 계획서의 assert 기준은 PRD 정식 코드를 따른다.
+> **명명 참고:** PRD·샘플 문서에는 `ERR_INVALID_DIMENSION` / `Input matrix must be 4x4.` 로 표기될 수 있다. **구현·pytest assert SSOT** 는 `INVALID_SIZE` / `Grid must be 4x4.` (`tests/conftest.py`, `boundary_validator.py`). 추적 매핑: [`docs/qa_ssot_mapping.md`](qa_ssot_mapping.md) §4.
 
 ---
 
@@ -85,12 +85,12 @@
 
 | Test ID | 설명 | 입력 | 기대 `code` | Domain 호출 |
 |---------|------|------|-------------|---------------|
-| RED-BND-VAL-001a | 명시적 None | `None` | `ERR_INVALID_DIMENSION` | 0 |
-| RED-BND-VAL-001b | 빈 리스트 | `[]` | `ERR_INVALID_DIMENSION` | 0 |
-| RED-BND-VAL-001c | 행만 4, 열 0 | `[[]] * 4` | `ERR_INVALID_DIMENSION` | 0 |
-| RED-BND-VAL-001d | 3×4 | `3×4` 행렬 fixture | `ERR_INVALID_DIMENSION` | 0 |
-| RED-BND-VAL-001e | 4×3 | `4×3` 행렬 fixture | `ERR_INVALID_DIMENSION` | 0 |
-| RED-BND-VAL-001f | 5×5 | `5×5` 행렬 fixture | `ERR_INVALID_DIMENSION` | 0 |
+| RED-BND-VAL-001a | 명시적 None | `None` | `INVALID_SIZE` | 0 |
+| RED-BND-VAL-001b | 빈 리스트 | `[]` | `INVALID_SIZE` | 0 |
+| RED-BND-VAL-001c | 행만 4, 열 0 | `[[]] * 4` | `INVALID_SIZE` | 0 |
+| RED-BND-VAL-001d | 3×4 | `3×4` 행렬 fixture | `INVALID_SIZE` | 0 |
+| RED-BND-VAL-001e | 4×3 | `4×3` 행렬 fixture | `INVALID_SIZE` | 0 |
+| RED-BND-VAL-001f | 5×5 | `5×5` 행렬 fixture | `INVALID_SIZE` | 0 |
 
 ---
 
@@ -100,8 +100,8 @@
 
 ```json
 {
-  "code": "ERR_INVALID_DIMENSION",
-  "message": "Input matrix must be 4x4."
+  "code": "INVALID_SIZE",
+  "message": "Grid must be 4x4."
 }
 ```
 
@@ -144,11 +144,11 @@ GRID_5X5 = [[1] * 5 for _ in range(5)]
 
 | # | 케이스 ID | 입력 / 조건 | 기대 동작 | AC / 정책 |
 |---|-----------|-------------|-----------|-----------|
-| E1 | `DIM-NON-SEQUENCE` | `grid = 123` (int) | `ERR_INVALID_DIMENSION`, 예외 미발생 | AC-FR01-01, §13 |
+| E1 | `DIM-NON-SEQUENCE` | `grid = 123` (int) | `INVALID_SIZE`, 예외 미발생 | AC-FR01-01, §13 |
 | E2 | `DIM-RAGGED` | `[[1,2,3,4], [1,2], [1,2,3,4], [1,2,3,4]]` | 열 길이 불일치 → 차원 오류 | BR-01 |
 | E3 | `DIM-NESTED-NON-INT` | `[[1, "x", 3, 4], ...]` (4×4 형태) | **본 계획서 제외** — 값 검증은 AC-FR01-03; 크기 검증 통과 후 별도 TC | FR-01-03 |
 | E4 | `DIM-MUTABLE-ROW-TRAP` | `[[]] * 4` 후 한 행만 `[1,2,3,4]` 변경 | 여전히 차원 오류 또는 ragged; **입력 불변(NFR-03)** — validator가 입력을 mutate하지 않음 | NFR-03 |
-| E5 | `DIM-TUPLE-GRID` | `tuple` of 4 `tuple`s (4×4) | 프로젝트 결정 필요: 허용 시 통과 경로, 불허 시 `ERR_INVALID_DIMENSION` | Open — pydantic 입력 타입 |
+| E5 | `DIM-TUPLE-GRID` | `tuple` of 4 `tuple`s (4×4) | 프로젝트 결정 필요: 허용 시 통과 경로, 불허 시 `INVALID_SIZE` | Open — 입력 타입 |
 | E6 | `DIM-CONTROL-SHORT-CIRCUIT` | Control에 invalid `grid` 전달 | `BoundaryValidator` 1회 호출 후 resolver **0회** | AC-FR01-05 |
 | E7 | `DIM-NO-EXCEPTION-POLICY` | 모든 §3 케이스 | `Exception` 미전파; ErrorResponse만 반환 | §13 |
 
@@ -160,42 +160,34 @@ GRID_5X5 = [[1] * 5 for _ in range(5)]
 
 | 진입점 (가칭) | 레이어 | FR | 호출 조건 |
 |---------------|--------|-----|-----------|
-| `DomainResolver.solve` (가칭) | Control → Entity 조율 | FR-02~05 게이트 | Boundary 검증 **성공** 후만 |
-| `BlankFinder.find` | Entity | FR-02 | 검증 통과 후 |
-| `MissingNumberFinder.find` | Entity | FR-03 | 검증 통과 후 |
-| `MagicSquareValidator.validate` | Entity | FR-04 | 검증 통과 후 |
-| `Solver.solve` | Entity | FR-05 | 검증 통과 후 |
+| `MagicSquareControl.resolve` | Control → Entity | FR-02~05 게이트 | `PuzzleGateway` 검증 **성공** 후만 |
+| `blank_locator.find_blank_coords` | Entity | FR-02 | 검증 통과 후 |
+| `missing_number_finder.find_missing_numbers` | Entity | FR-03 | 검증 통과 후 |
+| `magic_square_validator.is_magic_square` | Entity | FR-04 | 검증 통과 후 |
+| `two_cell_solver.solution` | Entity | FR-05 | 검증 통과 후 |
 
 AC-FR01-01 실패 시나리오에서는 위 **전부 0회** 호출이어야 한다 (AC-FR01-05).
 
 ### 5.2 권장 mock 대상 (단일 스파이 지점)
 
-**1차 (P0):** Control 레이어의 `DomainResolver` (또는 `resolve_magic_square`) — Boundary 통합 경로 1곳만 patch.
+**1차 (P0):** `PuzzleGateway` 경유 — `gateway._control.resolve` 단일 스파이 (AC-FR01-05).
 
 ```python
-# tests/control/test_solve_orchestration_dimension.py (개념 예시)
-from unittest.mock import MagicMock, patch
+# tests/control/test_solve_orchestration_dimension.py (SSOT)
+from unittest.mock import patch
 
-@patch("src.control.magic_square_control.DomainResolver")
-def test_grid_none_does_not_invoke_domain_resolver(mock_resolver_cls):
-    mock_resolver_cls.return_value.solve = MagicMock()
-    result = control.solve(grid=None)
+from src.boundary.puzzle_gateway import PuzzleGateway
+from tests.conftest import assert_invalid_size_failure
 
-    assert result.code == "ERR_INVALID_DIMENSION"
-    mock_resolver_cls.return_value.solve.assert_not_called()
+def test_grid_none_resolve_call_count_zero(grid_none):
+    gateway = PuzzleGateway()
+    with patch.object(gateway._control, "resolve") as mock_resolve:
+        result = gateway.solve(grid_none)
+        mock_resolve.assert_not_called()
+    assert_invalid_size_failure(result, label="grid_none_orchestration")
 ```
 
-**2차 (P1):** Entity 개별 컴포넌트 spy — 리팩터 후 회귀 방지.
-
-```python
-with (
-    patch("src.entity.blank_finder.BlankFinder.find") as mock_blank,
-    patch("src.entity.solver.Solver.solve") as mock_solver,
-):
-    control.solve(grid=[])
-    mock_blank.assert_not_called()
-    mock_solver.assert_not_called()
-```
+**2차 (P1):** `SolvePartialMagicSquare.execute` spy — `tests/control/test_u_flow_execute_isolation.py`.
 
 ### 5.3 검증 매트릭스 (AC-FR01-01 케이스 공통)
 
@@ -204,7 +196,7 @@ with (
 | Resolver 호출 횟수 | `assert_not_called()` / `call_count == 0` | 0 |
 | BoundaryValidator 호출 | spy (선택) | 1회 (Control 경로) |
 | 부작용 | 입력 `grid` id/내용 스냅샷 | 변경 없음 (NFR-03) |
-| 반환 타입 | `isinstance(result, ErrorResponse)` | pydantic 검증 통과 |
+| 반환 타입 | `FailureResult` (`code`, `message`) | `failure_result.py` SSOT |
 
 ### 5.4 Anti-patterns (금지)
 
@@ -284,13 +276,34 @@ pytest --cov=src --cov-report=html --cov-report=term-missing
 # 산출: htmlcov/index.html
 ```
 
-### 7.5 해석 규칙
+### 7.5 Dual-Track SSOT 측정 (QA Step 1)
+
+```bash
+# Domain Track (NFR-01: ≥ 95%)
+python -m pytest tests/entity/ tests/control/ \
+  --cov=src/entity --cov=src/control \
+  --cov-report=term-missing
+
+# Boundary Track (NFR-02: ≥ 85%)
+python -m pytest tests/boundary/ \
+  --cov=src/boundary \
+  --cov-report=term-missing
+
+# 전역 gate (NFR-03: ≥ 80%)
+python -m pytest \
+  --cov=src --cov-report=term-missing
+```
+
+상세 해석·비-GUI boundary: [`docs/qa_ssot_mapping.md`](qa_ssot_mapping.md) §8.
+
+### 7.6 해석 규칙
 
 | 규칙 | 설명 |
 |------|------|
 | **미구현 RED** | `src/boundary` 미존재 시 커버리지 0% — GREEN 전까지 게이트 실패 허용 |
 | **term-missing** | AC-FR01-01 분기 미커버 라인을 RED→GREEN 시 우선 제거 |
 | **과도한 전체 cov** | Domain 미호출 테스트만으로 entity 95% 달성 불가 — 레이어 분리 측정 필수 |
+| **GUI drag-down** | `--cov=src/boundary`에 `gui/` 0% 포함 → 패키지 35% vs 핵심 ~97% 구분 |
 | **약화 금지** | `# pragma: no cover` 남용·테스트 삭제로 통과 금지 (PRD §15.3, §20) |
 
 ---
@@ -299,7 +312,7 @@ pytest --cov=src --cov-report=html --cov-report=term-missing
 
 ```mermaid
 flowchart TD
-    A[RED: test_grid_none_returns_ERR_INVALID_DIMENSION] --> B[RED: DomainResolver.assert_not_called]
+    A[RED: test_grid_none_returns_INVALID_SIZE] --> B[RED: resolve.assert_not_called]
     B --> C[GREEN: BoundaryValidator 최소 구현]
     C --> D[GREEN: Control early return]
     D --> E[REFACTOR: GRID_SIZE 상수·pydantic 모델]
@@ -323,8 +336,8 @@ flowchart TD
 | Concept | BR | FR | AC | Test ID | Component |
 |---------|----|----|-----|---------|-----------|
 | 4×4 입력 | BR-01 | FR-01 | AC-FR01-01 | TC-BND-001, RED-BND-VAL-001a~f | BoundaryValidator |
-| Domain 미호출 | — | FR-01 | AC-FR01-05 | Control orchestration tests | Control + DomainResolver |
-| 표준 오류 응답 | — | FR-01 §13 | AC-FR01-01 | ErrorResponse contract | BoundaryValidator |
+| Domain 미호출 | — | FR-01 | AC-FR01-05 | `test_solve_orchestration_dimension.py` | PuzzleGateway + MagicSquareControl |
+| 표준 오류 응답 | — | FR-01 §13 | AC-FR01-01 | FailureResult contract | BoundaryValidator |
 
 ---
 
@@ -333,19 +346,27 @@ flowchart TD
 | 버전 | 날짜 | 변경 내용 | 작성 |
 |------|------|-----------|------|
 | 1.0 | 2026-05-29 | AC-FR01-01 샘플 기반 초안 — 경계값·mock·cov 전략 | QA Lead (계획) |
+| 1.1 | 2026-05-29 | REFACTOR 후 SSOT 정합 — INVALID_SIZE, PuzzleGateway mock, Dual-Track cov, `qa_ssot_mapping.md` | QA |
 
 ---
 
 ## 부록 A — pytest 실행 치트시트
 
 ```bash
+# Step 0 — 기준선 (72건 + GM 6건)
+pytest -q
+pytest tests/test_golden_master_magic_square.py -q
+pytest -m golden_master -q
+
 # P0만 빠르게
 pytest tests/boundary/test_boundary_validator_dimension.py tests/control/ -q
 
-# AC-FR01-01 전 경계값 (구현 후 parametrize)
-pytest tests/boundary/test_boundary_validator_dimension.py -v
+# boundary 전체 (38건)
+pytest tests/boundary/ -q
 
-# 커버리지 + 누락 라인
+# Dual-Track cov — qa_ssot_mapping.md §8
+pytest tests/entity/ tests/control/ --cov=src/entity --cov=src/control --cov-report=term-missing
+pytest tests/boundary/ --cov=src/boundary --cov-report=term-missing
 pytest --cov=src --cov-report=term-missing
 ```
 

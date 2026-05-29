@@ -6,7 +6,7 @@ import difflib
 import os
 from pathlib import Path
 
-from src.control.magic_square_control import MagicSquareControl
+from src.boundary.puzzle_gateway import PuzzleGateway
 
 from tests.golden_master.scenarios import GOLDEN_MASTER_SCENARIOS
 from tests.golden_master.serializer import render_golden_master_document
@@ -19,9 +19,9 @@ _APPROVE_ENV_VAR = "GOLDEN_MASTER_APPROVE"
 
 def collect_actual_output() -> str:
     """Run all scenarios through MagicSquareControl and render the document."""
-    control = MagicSquareControl()
+    gateway = PuzzleGateway()
     sections = [
-        (scenario, control.solve(scenario.grid))
+        (scenario, gateway.solve(scenario.grid))
         for scenario in GOLDEN_MASTER_SCENARIOS
     ]
     return render_golden_master_document(sections)
@@ -82,12 +82,12 @@ def format_golden_diff(
 
 def collect_scenario_section(scenario_name: str) -> str:
     """Serialize one scenario block from live solver output."""
-    control = MagicSquareControl()
+    gateway = PuzzleGateway()
     for scenario in GOLDEN_MASTER_SCENARIOS:
         if scenario.name == scenario_name:
             from tests.golden_master.serializer import serialize_scenario_section
 
-            result = control.solve(scenario.grid)
+            result = gateway.solve(scenario.grid)
             return serialize_scenario_section(scenario, result)
     raise KeyError(f"Unknown golden master scenario: {scenario_name}")
 
